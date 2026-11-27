@@ -84,3 +84,19 @@ Fix and simplify the UI. Product name must be exactly "Andhaar" everywhere:
 8. **Compliance & Verification:**
    - `js/engine.js` kept completely untouched.
    - Ran `npm test`: all 33 tests passed cleanly.
+
+---
+
+## Prompt 3: Professional Landing Page + 3D Hero + App Redesign
+
+### User Request Summary
+The UI felt weak. Build a professional landing page and restyle the app, following a 3D, editorial reference style (paper-white background, huge black type, orange accents, a 3D object in the hero, scroll-driven motion). Keep the wording simple and friendly.
+
+### Actions & Changes
+1. **Design system (`css/base.css`):** New tokens (paper/ink/saffron), Geist + Geist Mono, brand mark with a redaction bar over "dh", buttons, labels, toasts, and light/dark themes with a no-flash theme loader (`js/theme.js`).
+2. **Landing page (`index.html`, `css/landing.css`, `js/landing.js`):** Hero "Hide it. Share it.", problem statement with scroll-lit words, sticky scroll-driven "How it works" document, 7-kind detection grid, real-vs-fake list, live engine playground, Google AI section, dark privacy band, FAQ, CTA.
+3. **3D hero (`js/hero3d.js`):** three.js ID card on a lanyard with an animated scan-and-redact sequence drawn on a canvas texture, a soft contact shadow, drag to turn, replay and pause, a WebGL fallback, and reduced-motion support. three.js is bundled locally to keep the CSP strict.
+4. **App (`app.html`, `css/app.css`):** Same look. Top bar, numbered step bar, chips, two panes and a tabbed inspector, an anchored note card, a drop overlay, and toasts instead of `alert()`. All element IDs were kept, so `js/app.js` logic is unchanged apart from UI wiring and plain-language messages.
+5. **Deploy:** Dockerfile now ships `app.html` and `favicon.svg`. The old `css/styles.css` was removed.
+6. **Verification:** `npm test` passes (`engine.js` untouched). Headless Chrome checks at 1440px and 390px in light and dark show no console errors and no sideways scroll. App flows tested: modes, filters, column hiding, let-through, samples, empty state.
+

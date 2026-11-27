@@ -11,6 +11,7 @@ import {
   calculateExposureScore,
   redactText,
   restoreText,
+  createPartialMask,
   parseCSV,
   hideCSVColumn,
   encryptKeyMap,
@@ -103,7 +104,6 @@ const btnLoadCSV = document.getElementById('btn-load-csv');
 const btnLoadTXT = document.getElementById('btn-load-txt');
 const btnEmptyCSV = document.getElementById('btn-empty-csv');
 const btnEmptyTXT = document.getElementById('btn-empty-txt');
-const themeToggle = document.getElementById('theme-toggle');
 const privacyPill = document.getElementById('privacy-pill');
 const privacyStatusText = document.getElementById('privacy-status-text');
 const btnRunNano = document.getElementById('btn-run-nano');
@@ -142,6 +142,42 @@ const countPan = document.getElementById('count-pan');
 const countIp = document.getElementById('count-ip');
 const countNano = document.getElementById('count-nano');
 
+const topbarFileName = document.getElementById('topbar-file-name');
+const toastStack = document.getElementById('toast-stack');
+const dropOverlay = document.getElementById('drop-overlay');
+
+/** Plain-language names for each kind of private data. */
+const TYPE_LABELS = {
+  email: 'Email',
+  phone: 'Phone',
+  card: 'Card number',
+  aadhaar: 'Aadhaar',
+  pan: 'PAN',
+  ip: 'IP address',
+  name: 'Name',
+  address: 'Address',
+  manual: 'Your mark'
+};
+
+/**
+ * Shows a short message at the bottom of the screen.
+ * @param {string} message
+ * @param {boolean} [isError]
+ */
+function toast(message, isError = false) {
+  const el = document.createElement('div');
+  el.className = `toast${isError ? ' is-error' : ''}`;
+  el.innerHTML = '<span class="toast-dot" aria-hidden="true"></span>';
+  const span = document.createElement('span');
+  span.textContent = message;
+  el.appendChild(span);
+  toastStack.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('is-leaving');
+    setTimeout(() => el.remove(), 260);
+  }, isError ? 4200 : 2600);
+}
+
 /**
  * Escapes HTML characters for safe rendering.
  * @param {string} str 
@@ -176,23 +212,28 @@ async function processDocument() {
 
   // Update sheet headers metadata
   if (text) {
-    originalMeta.textContent = `${state.fileName} · ${lineCount} lines`;
-    safeMeta.textContent = `Sanitised for sharing · ${lineCount} lines`;
+    originalMeta.textContent = `${state.fileName} · ${lineCount} ${lineCount === 1 ? 'line' : 'lines'}`;
+    safeMeta.textContent = `Ready to share · ${lineCount} ${lineCount === 1 ? 'line' : 'lines'}`;
+    topbarFileName.textContent = state.fileName;
     originalEmptyZone.classList.add('hidden');
-    originalDisplay.classList.remove('hidden');
+    originalDisplay.classList.toggle('hidden', state.isEditing);
   } else {
-    originalMeta.textContent = 'No document loaded';
-    safeMeta.textContent = 'Waiting for input';
-    originalEmptyZone.classList.remove('hidden');
+    originalMeta.textContent = 'Nothing added yet';
+    safeMeta.textContent = 'Waiting for text';
+    topbarFileName.textContent = 'No file';
+    originalEmptyZone.classList.toggle('hidden', state.isEditing);
     originalDisplay.classList.add('hidden');
-    safeDisplay.textContent = 'Waiting for input...';
-    sealOriginal.textContent = 'NO DATA';
-    sealSafe.textContent = 'NO DATA';
+    safeDisplay.textContent = 'Your safe copy will show up here.';
+    sealOriginal.textContent = 'Nothing to check';
+    sealOriginal.className = 'seal seal-clear';
+    sealSafe.textContent = 'Nothing to share yet';
+    sealSafe.className = 'seal seal-clear';
     scoreVal.textContent = '0';
+    scoreVal.className = 'score-digits safe';
     scoreMeterBar.style.width = '0%';
-    scoreAfterLine.textContent = 'Safe to share. Zero private items.';
-    findingsBreakdownList.innerHTML = '<li class="stats-row"><span>No data loaded.</span></li>';
-    ignoredList.innerHTML = '<li class="ignored-item">No decoy candidates detected.</li>';
+    scoreAfterLine.textContent = 'Add some text to get a score.';
+    findingsBreakdownList.innerHTML = '<li class="found-empty">Nothing added yet.</li>';
+    ignoredList.innerHTML = '<li class="ignored-item is-empty">Nothing set aside.</li>';
     tabCountSetaside.textContent = '0';
     tabBtnColumns.classList.add('hidden');
     safeHashDisplay.textContent = 'n/a';
@@ -329,7 +370,24 @@ function renderOriginalHighlights() {
  * Renders safe copy.
  */
 function renderSafeDisplay() {
-  safeDisplay.textContent = state.safeText;
+  const text = state.rawText;
+  const parts = [];
+  let last = 0;
+  for (const f of state.findings) {
+    if (f.start < last) continue;
+    parts.push(escapeHTML(text.substring(last, f.start)));
+    const key = f.normalisedKey || f.value;
+    const open = state.letThroughKeys.has(f.normalisedKey) || state.letThroughKeys.has(f.value);
+    let rep;
+    if (open) rep = text.substring(f.start, f.end);
+    else if (state.mode === 'full') rep = '[REDACTED]';
+    else if (state.mode === 'partial') rep = createPartialMask(f);
+    else rep = state.pseudonymMap[key] || '[REDACTED]';
+    parts.push(`<span class="safe-token${open ? ' is-open' : ''}">${escapeHTML(rep)}</span>`);
+    last = f.end;
+  }
+  parts.push(escapeHTML(text.substring(last)));
+  safeDisplay.innerHTML = parts.join('');
 }
 
 /**
@@ -343,31 +401,31 @@ function renderExposureMetrics(before, after, totalEntities) {
     scoreVal.className = 'score-digits';
     scoreMeterBar.className = 'meter-fill';
   } else if (before > 0) {
-    scoreVal.className = 'score-digits';
-    scoreMeterBar.className = 'meter-fill';
+    scoreVal.className = 'score-digits is-mid';
+    scoreMeterBar.className = 'meter-fill is-mid';
   } else {
     scoreVal.className = 'score-digits safe';
     scoreMeterBar.className = 'meter-fill safe';
   }
 
-  scoreAfterLine.textContent = `After redaction: ${after}. ${after === 0 ? 'Safe to share.' : 'Residual risk.'}`;
+  scoreAfterLine.textContent = after === 0
+    ? 'After hiding: 0. Safe to share.'
+    : `After hiding: ${after}. Some items are still showing.`;
 
-  // Seals
   if (totalEntities > 0) {
-    sealOriginal.textContent = `NOT SAFE TO SHARE · ${totalEntities} private items`;
-    sealOriginal.className = 'ink-seal ink-seal-danger';
+    sealOriginal.textContent = `Not safe to share · ${totalEntities} private ${totalEntities === 1 ? 'item' : 'items'}`;
+    sealOriginal.className = 'seal seal-danger';
   } else {
-    sealOriginal.textContent = 'CLEARED · 0 private items';
-    sealOriginal.className = 'ink-seal ink-seal-clear';
+    sealOriginal.textContent = 'Nothing private found';
+    sealOriginal.className = 'seal seal-clear';
   }
 
   if (after === 0) {
-    const today = new Date().toISOString().split('T')[0];
-    sealSafe.textContent = `CLEARED FOR SHARING · ${today}`;
-    sealSafe.className = 'ink-seal ink-seal-clear';
+    sealSafe.textContent = 'Safe to share';
+    sealSafe.className = 'seal seal-clear';
   } else {
-    sealSafe.textContent = `PARTIAL MASK · ${after} RISK REMAINING`;
-    sealSafe.className = 'ink-seal ink-seal-danger';
+    sealSafe.textContent = `Risk ${after} left · check let-through items`;
+    sealSafe.className = 'seal seal-danger';
   }
 }
 
@@ -376,36 +434,18 @@ function renderExposureMetrics(before, after, totalEntities) {
  */
 function renderFindingsBreakdown(breakdown) {
   findingsBreakdownList.innerHTML = '';
-
-  const labelMapping = {
-    email: 'Email',
-    phone: 'Phone',
-    card: 'Card number',
-    aadhaar: 'Aadhaar',
-    pan: 'PAN',
-    ip: 'IP address',
-    name: 'Names & addresses',
-    address: 'Names & addresses',
-    manual: 'Manual marks'
-  };
-
-  const aggregated = {};
-  for (const [type, count] of Object.entries(breakdown)) {
-    const label = labelMapping[type] || type;
-    aggregated[label] = (aggregated[label] || 0) + count;
-  }
-
-  const entries = Object.entries(aggregated);
+  const entries = Object.entries(breakdown).filter(([, c]) => c > 0);
   if (entries.length === 0) {
-    findingsBreakdownList.innerHTML = '<li class="stats-row"><span>No sensitive entities detected.</span></li>';
+    findingsBreakdownList.innerHTML = '<li class="found-empty">Nothing private found.</li>';
     return;
   }
-
-  for (const [label, count] of entries) {
+  entries.sort((x, y) => y[1] - x[1]);
+  for (const [type, count] of entries) {
     const li = document.createElement('li');
-    li.className = 'stats-row';
+    li.className = 'found-row';
     li.innerHTML = `
-      <span>${escapeHTML(label)}</span>
+      <span class="swatch swatch-${escapeHTML(type)}" aria-hidden="true"></span>
+      <span class="found-name">${escapeHTML(TYPE_LABELS[type] || type)}</span>
       <strong>${count}</strong>
     `;
     findingsBreakdownList.appendChild(li);
@@ -420,7 +460,7 @@ function renderIgnoredDecoys() {
   tabCountSetaside.textContent = String(state.ignored.length);
 
   if (state.ignored.length === 0) {
-    ignoredList.innerHTML = '<li class="ignored-item">No decoy candidates detected.</li>';
+    ignoredList.innerHTML = '<li class="ignored-item is-empty">Nothing set aside. Every match passed its check.</li>';
     return;
   }
 
@@ -447,8 +487,8 @@ function renderCSVColumns(headers) {
 
     row.innerHTML = `
       <span><strong>${escapeHTML(h)}</strong></span>
-      <button class="btn-compact" data-col-idx="${idx}" type="button">
-        ${isHidden ? 'Redacted' : 'Hide column'}
+      <button class="btn-compact${isHidden ? ' is-done' : ''}" data-col-idx="${idx}" type="button">
+        ${isHidden ? 'Hidden' : 'Hide column'}
       </button>
     `;
 
@@ -461,6 +501,7 @@ function renderCSVColumns(headers) {
       state.rawText = updatedCSV;
       originalTextarea.value = updatedCSV;
       processDocument();
+      toast(`Column "${h}" is now hidden.`);
     });
 
     csvColumnsList.appendChild(row);
@@ -475,17 +516,18 @@ function openMarginNote(findingIdx, markElement) {
   if (!f) return;
 
   state.selectedFinding = f;
-  document.getElementById('margin-type').textContent = f.type.toUpperCase();
+  document.getElementById('margin-type').textContent = TYPE_LABELS[f.type] || f.type;
+  document.getElementById('margin-swatch').className = `swatch swatch-${f.type}`;
   document.getElementById('margin-val').textContent = f.value;
   document.getElementById('margin-reason').textContent = f.reason;
 
   const flagContainer = document.getElementById('margin-flag-container');
   flagContainer.innerHTML = '';
   if (f.flags) {
-    if (f.flags.devanagari) flagContainer.innerHTML += '<div class="margin-card-flag">Written in Devanagari digits, caught anyway</div>';
-    if (f.flags.spaced) flagContainer.innerHTML += '<div class="margin-card-flag">Spaced digits format, normalized</div>';
-    if (f.flags.disguised) flagContainer.innerHTML += '<div class="margin-card-flag">Disguised syntax, de-obfuscated</div>';
-    if (f.flags.brand) flagContainer.innerHTML += `<div class="margin-card-flag">Card Brand: ${f.flags.brand}</div>`;
+    if (f.flags.devanagari) flagContainer.innerHTML += '<span class="margin-card-flag">Written in Devanagari, caught anyway</span>';
+    if (f.flags.spaced) flagContainer.innerHTML += '<span class="margin-card-flag">Spaced-out digits</span>';
+    if (f.flags.disguised) flagContainer.innerHTML += '<span class="margin-card-flag">Disguised on purpose</span>';
+    if (f.flags.brand) flagContainer.innerHTML += `<span class="margin-card-flag">${escapeHTML(f.flags.brand)}</span>`;
   }
 
   const count = state.findings.filter(item => item.normalisedKey === f.normalisedKey).length;
@@ -494,6 +536,7 @@ function openMarginNote(findingIdx, markElement) {
   const key = f.normalisedKey || f.value;
   let rep = '[REDACTED]';
   if (state.mode === 'pseudonym') rep = state.pseudonymMap[key] || '[REDACTED]';
+  else if (state.mode === 'partial') rep = createPartialMask(f);
   document.getElementById('margin-replacement').textContent = rep;
 
   const isLetThrough = state.letThroughKeys.has(f.normalisedKey) || state.letThroughKeys.has(f.value);
@@ -511,12 +554,16 @@ function openMarginNote(findingIdx, markElement) {
     btnRemoveManual.classList.add('hidden');
   }
 
-  const rect = markElement.getBoundingClientRect();
-  const parentRect = originalDisplay.getBoundingClientRect();
-
-  marginNote.style.top = `${Math.max(10, rect.top - parentRect.top + originalDisplay.scrollTop - 20)}px`;
-  marginNote.style.left = `${Math.min(parentRect.width - 300, Math.max(10, rect.left - parentRect.left))}px`;
   marginNote.classList.remove('hidden');
+  const rect = markElement.getBoundingClientRect();
+  const noteW = marginNote.offsetWidth;
+  const noteH = marginNote.offsetHeight;
+  let top = rect.bottom + 8;
+  if (top + noteH > window.innerHeight - 12) top = Math.max(12, rect.top - noteH - 8);
+  const left = Math.min(window.innerWidth - noteW - 12, Math.max(12, rect.left));
+  marginNote.style.top = `${top}px`;
+  marginNote.style.left = `${left}px`;
+  btnLetThrough.focus({ preventScroll: true });
 }
 
 function closeMarginNote() {
@@ -646,7 +693,7 @@ function initEventListeners() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds the 5 MB limit. Please select a smaller document.');
+      toast('That file is over 5 MB. Please pick a smaller one.', true);
       return;
     }
 
@@ -659,17 +706,20 @@ function initEventListeners() {
   btnDownloadSafe.addEventListener('click', () => {
     const ext = state.isCSV ? 'csv' : 'txt';
     const base = state.fileName.replace(/\.[^/.]+$/, '');
-    downloadFile(state.safeText, `${base}_sanitised.${ext}`, state.isCSV ? 'text/csv' : 'text/plain');
+    if (!state.rawText) { toast('Add some text first.', true); return; }
+    downloadFile(state.safeText, `${base}_safe.${ext}`, state.isCSV ? 'text/csv' : 'text/plain');
+    toast('Safe copy downloaded.');
   });
 
   btnCopySafe.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(state.safeText);
-      const prev = btnCopySafe.textContent;
-      btnCopySafe.textContent = 'Copied!';
-      setTimeout(() => { btnCopySafe.textContent = prev; }, 1500);
+      const lbl = btnCopySafe.querySelector('.lbl');
+      lbl.textContent = 'Copied';
+      setTimeout(() => { lbl.textContent = 'Copy'; }, 1500);
+      toast('Safe copy is on your clipboard.');
     } catch (err) {
-      alert('Unable to copy to clipboard.');
+      toast('Could not copy. Try the download button instead.', true);
     }
   });
 
@@ -694,6 +744,7 @@ function initEventListeners() {
     report.tool = 'Andhaar';
 
     downloadFile(JSON.stringify(report, null, 2), 'andhaar_audit_report.json', 'application/json');
+    toast('Report downloaded.');
   });
 
   // Look for filter chips
@@ -716,7 +767,13 @@ function initEventListeners() {
   // On-device Gemini Nano chip button
   btnRunNano.addEventListener('click', async () => {
     if (!state.rawText) {
-      alert('Please load a document first.');
+      toast('Add some text first.', true);
+      return;
+    }
+
+    const availability = await checkGeminiNanoAvailability();
+    if (!availability.available) {
+      toast('Gemini Nano is not on in this browser. Use Chrome with built-in AI turned on. Everything else still works.', true);
       return;
     }
 
@@ -727,8 +784,9 @@ function initEventListeners() {
       state.nanoEntities = entities;
       btnRunNano.classList.add('active');
       processDocument();
+      toast(entities.length ? `Gemini Nano found ${entities.length} names or addresses.` : 'Gemini Nano found no names or addresses.');
     } catch (err) {
-      alert(`Gemini Nano: ${err.message}`);
+      toast(`Gemini Nano: ${err.message}`, true);
     } finally {
       btnRunNano.disabled = false;
       nanoSpinner.classList.add('hidden');
@@ -745,14 +803,16 @@ function initEventListeners() {
   btnToggleEdit.addEventListener('click', () => {
     state.isEditing = !state.isEditing;
     if (state.isEditing) {
-      btnToggleEdit.textContent = 'View highlights';
+      btnToggleEdit.querySelector('.lbl').textContent = 'Done';
+      originalEmptyZone.classList.add('hidden');
       originalDisplay.classList.add('hidden');
       originalEditWrapper.classList.remove('hidden');
       originalTextarea.focus();
     } else {
-      btnToggleEdit.textContent = 'Edit text';
+      btnToggleEdit.querySelector('.lbl').textContent = 'Edit text';
       originalEditWrapper.classList.add('hidden');
       originalDisplay.classList.remove('hidden');
+      processDocument();
     }
   });
 
@@ -810,9 +870,10 @@ function initEventListeners() {
     if (selectedText.length > 1) {
       const range = sel.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      selectionTooltip.style.top = `${rect.top - 32 + window.scrollY}px`;
-      selectionTooltip.style.left = `${rect.left + (rect.width / 2) - 45 + window.scrollX}px`;
       selectionTooltip.classList.remove('hidden');
+      const tipW = selectionTooltip.offsetWidth;
+      selectionTooltip.style.top = `${Math.max(8, rect.top - 42)}px`;
+      selectionTooltip.style.left = `${Math.min(window.innerWidth - tipW - 8, Math.max(8, rect.left + rect.width / 2 - tipW / 2))}px`;
 
       selectionTooltip.onclick = () => {
         if (!state.manualEntries.includes(selectedText)) {
@@ -836,7 +897,7 @@ function initEventListeners() {
   });
 
   // Tab Keyboard Navigation (Arrow keys)
-  const tablist = document.querySelector('.panel-tabs');
+  const tablist = document.querySelector('.inspector [role="tablist"]');
   tablist.addEventListener('keydown', (e) => {
     const tabs = Array.from(tablist.querySelectorAll('.panel-tab-btn:not(.hidden)'));
     const currentIdx = tabs.indexOf(document.activeElement);
@@ -859,20 +920,21 @@ function initEventListeners() {
   btnLockKey.addEventListener('click', async () => {
     const pass = lockPasswordInput.value.trim();
     if (!pass) {
-      lockStatus.textContent = 'Please enter a master password to encrypt your key map.';
+      lockStatus.textContent = 'Type a password first.';
       return;
     }
 
     try {
-      lockStatus.textContent = 'Deriving PBKDF2 key (250,000 iterations)...';
+      lockStatus.textContent = 'Locking… (this takes a second on purpose)';
       const bundle = await encryptKeyMap(state.reverseMap, pass);
       bundle.tool = 'Andhaar';
       const base = state.fileName.replace(/\.[^/.]+$/, '');
       downloadFile(JSON.stringify(bundle, null, 2), `${base}.andhaar-key`, 'application/json');
-      lockStatus.textContent = 'Key file downloaded (.andhaar-key). Store it safely!';
+      lockStatus.textContent = 'Key file saved. Keep it and the password somewhere safe.';
+      toast('Locked key file downloaded.');
       lockPasswordInput.value = '';
     } catch (err) {
-      lockStatus.textContent = `Encryption error: ${err.message}`;
+      lockStatus.textContent = `Could not lock: ${err.message}`;
     }
   });
 
@@ -881,22 +943,23 @@ function initEventListeners() {
     const file = restoreKeyFileInput.files?.[0];
     const pass = restorePasswordInput.value.trim();
     if (!file || !pass) {
-      restoreStatus.textContent = 'Please select a key file and enter the password.';
+      restoreStatus.textContent = 'Pick your key file and type the password.';
       return;
     }
 
     try {
-      restoreStatus.textContent = 'Decrypting key file...';
+      restoreStatus.textContent = 'Unlocking…';
       const fileText = await file.text();
       const bundle = JSON.parse(fileText);
       const restoredReverseMap = await decryptKeyMap(bundle, pass);
       const restored = restoreText(state.safeText, restoredReverseMap);
       loadDocument(restored, 'restored_document.txt');
-      restoreStatus.textContent = 'Original document values successfully restored!';
+      restoreStatus.textContent = 'Done. The real values are back.';
+      toast('Original values restored.');
       restorePasswordInput.value = '';
       restoreKeyFileInput.value = '';
     } catch (err) {
-      restoreStatus.textContent = `Restoration failed: ${err.message}`;
+      restoreStatus.textContent = `Could not unlock. Check the password and file. (${err.message})`;
     }
   });
 
@@ -904,29 +967,24 @@ function initEventListeners() {
   async function handleSyntheticGen(type) {
     const key = geminiApiKeyInput.value.trim();
     if (!key) {
-      geminiApiStatus.textContent = 'Please enter your Google AI Studio API key.';
+      geminiApiStatus.textContent = 'Paste your Google AI Studio API key first.';
       return;
     }
 
     try {
-      geminiApiStatus.textContent = 'Generating test dataset via Gemini API...';
+      geminiApiStatus.textContent = 'Asking Gemini for fresh fake data…';
       const syntheticText = await generateSyntheticData(type, key);
       const fname = type === 'placementCSV' ? 'gemini_placement_shortlist.csv' : 'gemini_support_ticket.txt';
       loadDocument(syntheticText, fname);
-      geminiApiStatus.textContent = 'Synthetic test data generated and loaded!';
+      geminiApiStatus.textContent = 'Fresh test data loaded.';
     } catch (err) {
-      geminiApiStatus.textContent = `Generation error: ${err.message}`;
+      geminiApiStatus.textContent = `Gemini said: ${err.message}`;
     }
   }
   btnGenCSV.addEventListener('click', () => handleSyntheticGen('placementCSV'));
   btnGenTicket.addEventListener('click', () => handleSyntheticGen('supportTicket'));
 
-  // Theme Toggle
-  themeToggle.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-  });
+  // Theme toggle is handled by js/theme.js (shared with the landing page).
 
   // Keyboard Shortcuts Popover
   btnShortcuts.addEventListener('click', () => {
@@ -976,28 +1034,43 @@ function initEventListeners() {
   function updateNetworkStatus() {
     if (navigator.onLine) {
       privacyPill.classList.remove('offline');
-      privacyStatusText.textContent = 'Offline-safe · 0 bytes sent';
+      privacyStatusText.textContent = 'On this device · 0 bytes sent';
     } else {
       privacyPill.classList.add('offline');
-      privacyStatusText.textContent = 'Offline, still working · 0 bytes sent';
+      privacyStatusText.textContent = 'Offline · still working';
     }
   }
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
   updateNetworkStatus();
 
-  // Drag and Drop
+  // Drag and Drop (with a full-screen hint while dragging)
+  let dragDepth = 0;
+  window.addEventListener('dragenter', (e) => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+    dragDepth++;
+    dropOverlay.classList.remove('hidden');
+  });
+  window.addEventListener('dragleave', () => {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) dropOverlay.classList.add('hidden');
+  });
   window.addEventListener('dragover', (e) => e.preventDefault());
   window.addEventListener('drop', (e) => {
     e.preventDefault();
+    dragDepth = 0;
+    dropOverlay.classList.add('hidden');
     const file = e.dataTransfer?.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds the 5 MB limit.');
+        toast('That file is over 5 MB. Please pick a smaller one.', true);
         return;
       }
       const reader = new FileReader();
-      reader.onload = (evt) => loadDocument(evt.target.result, file.name);
+      reader.onload = (evt) => {
+        loadDocument(evt.target.result, file.name);
+        toast(`Opened ${file.name}`);
+      };
       reader.readAsText(file);
     }
   });

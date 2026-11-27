@@ -64,16 +64,26 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 ---
 
-## 5. UI/UX: "The Secure Records Room"
+## 5. UI/UX: Landing page + App
 
-Designed for a first-time user to understand and use every feature within 10 seconds:
-- **Sticky 3-Step Sequence Bar:** 1: Add text (with samples), 2: Hide by mode (with live example preview), 3: Share safely (Download, Copy, Audit report).
-- **"Look for" Chips:** Direct toggle chips with real-time entity counts.
-- **Side-by-Side Synced Sheets:** Original and Safe copy with red margin, ruled lines, paperclip, and ink seals.
-- **Tabbed Inspector:** Summary, Set aside decoys, CSV Columns, and Password Lock & Restore.
-- **Keyboard Shortcuts:** `1/2/3` for modes, `D` for download, `E` for edit, `Esc` for notes, `?` for help popover.
+Two pages, one design system (`css/base.css`): paper-white and ink-black with one saffron accent, big type with square full stops, and small uppercase labels. Light and dark themes follow the system setting, and the toggle remembers your choice.
 
----
+**Landing page (`index.html`)**
+- **3D hero (three.js):** a sample ID card hangs on an Andhaar lanyard. A scan line sweeps down and blacks out the Aadhaar, PAN and phone, then a "Safe to share" stamp lands. Drag to turn it; replay and pause buttons included. Falls back to a flat card if WebGL is off, and respects reduced-motion settings.
+- **Scroll-driven "How it works":** a sticky document goes from *added* → *private items marked* → *blacked out* as you scroll the three steps.
+- **Live playground:** runs the real engine on the page, so it updates as you type, with all three hiding styles.
+- Sections: the problem, what it finds (7 kinds), real vs. fake numbers, Google AI, privacy promise, FAQ.
+
+**App (`app.html`)**
+- Top bar with file name and a live "0 bytes sent" badge.
+- Numbered step bar: **01 Add** (samples, open file, drag and drop anywhere) → **02 Hide by** (Black out / Hint / Nicknames with a live preview) → **03 Share** (Copy, Report, Download).
+- "Look for" chips with live counts, plus on-device Gemini Nano for names and addresses.
+- Side-by-side original and safe copy. Swapped values are shown as ink tokens in the safe copy.
+- Inspector tabs: Summary (risk score, breakdown, SHA-256 fingerprint, Gemini test data), Set aside, Columns (CSV), Lock.
+- Click any mark for a note card (why it was caught, how often it shows up, what it becomes, let it through). Select text to hide it yourself.
+- Keyboard: `1/2/3` styles, `D` download, `E` edit, `Esc` close, `?` help.
+
+three.js r160 (MIT) is bundled at `js/vendor/three.module.min.js` so the strict `script-src 'self'` policy stays in place.
 
 ## 6. Testing & Quality Assurance
 

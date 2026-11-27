@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+  <meta name="description" content="Andhaar app: paste text or drop a file, see every private detail, and download a safe copy. Runs fully in your browser.">
+  <meta name="theme-color" content="#F3F2EE">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Andhaar · App</title>
+
+  <script src="js/theme.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app">
+  <a href="#main-content" class="skip-link">Skip to the document</a>
+
+  <div class="shell">
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <a href="index.html" class="brand" aria-label="Andhaar home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word" aria-hidden="true">an<span class="brand-redact">dh</span>aar<span class="brand-dot"></span></span>
+        </a>
+        <span class="topbar-sep" aria-hidden="true"></span>
+        <span class="file-chip" id="topbar-file">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5H4z"/><path d="M9.5 1.5V5H13"/></svg>
+          <span id="topbar-file-name">placement_shortlist.csv</span>
+        </span>
+      </div>
+
+      <div class="topbar-right">
+        <div id="privacy-pill" class="privacy-pill" aria-live="polite">
+          <span class="privacy-dot" aria-hidden="true"></span>
+          <span id="privacy-status-text">On this device · 0 bytes sent</span>
+        </div>
+        <button id="btn-shortcuts" class="icon-btn" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="1.5" y="4" width="13" height="8.5" rx="1.5"/><path d="M4 7h1M7 7h1M10 7h2M4.5 10h7"/></svg>
+        </button>
+        <button id="theme-toggle" class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark mode" title="Light / dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ STEP BAR ============ -->
+    <nav class="stepbar" aria-label="Steps">
+      <div class="step">
+        <span class="step-label"><span class="step-num">01</span>Add</span>
+        <div class="step-controls">
+          <button id="btn-load-csv" class="btn btn-ghost btn-sm" type="button">Placement sheet</button>
+          <button id="btn-load-txt" class="btn btn-ghost btn-sm" type="button">Support ticket</button>
+          <label for="file-upload" class="btn btn-ghost btn-sm">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 11V2.5M4.5 6 8 2.5 11.5 6M2.5 10.5v3h11v-3"/></svg>
+            Open file
+          </label>
+          <input id="file-upload" class="sr-only" type="file" accept=".txt,.csv,text/plain,text/csv">
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="step-num">02</span>Hide by</span>
+        <div class="step-controls">
+          <div class="seg" role="radiogroup" aria-label="Hiding style">
+            <button id="mode-full" class="seg-btn" type="button" role="radio" aria-checked="false" title="Black out (1)">
+              <span class="seg-title">Black out</span>
+              <span id="preview-full" class="seg-preview hidden">[REDACTED]</span>
+            </button>
+            <button id="mode-partial" class="seg-btn" type="button" role="radio" aria-checked="false" title="Hint (2)">
+              <span class="seg-title">Hint</span>
+              <span id="preview-partial" class="seg-preview hidden">XXXX-1234</span>
+            </button>
+            <button id="mode-pseudonym" class="seg-btn active" type="button" role="radio" aria-checked="true" title="Nicknames (3)">
+              <span class="seg-title">Nicknames</span>
+              <span id="preview-pseudonym" class="seg-preview">USER_01</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step step-share">
+        <span class="step-label"><span class="step-num">03</span>Share</span>
+        <div class="step-controls">
+          <button id="btn-copy-safe" class="btn btn-ghost btn-sm" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+            <span class="lbl">Copy</span>
+          </button>
+          <button id="btn-download-audit" class="btn btn-ghost btn-sm" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5H4z"/><path d="M6.5 8.5h4M6.5 11h4"/></svg>
+            Report
+          </button>
+          <button id="btn-download-safe" class="btn btn-dark btn-sm" type="button" title="Download safe copy (D)">
+            Download safe copy
+            <svg class="arrow-ne" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============ LOOK FOR ============ -->
+    <section class="chips" aria-label="What to look for">
+      <span class="chips-label">Look for</span>
+      <div class="chips-group">
+        <button class="chip-btn active" data-filter="email" type="button" aria-pressed="true">
+          <span class="swatch swatch-email" aria-hidden="true"></span>Email <span id="count-email" class="chip-count">0</span>
+        </button>
+        <button class="chip-btn active" data-filter="phone" type="button" aria-pressed="true">
+          <span class="swatch swatch-phone" aria-hidden="true"></span>Phone <span id="count-phone" class="chip-count">0</span>
+        </button>
+        <button class="chip-btn active" data-filter="card" type="button" aria-pressed="true">
+          <span class="swatch swatch-card" aria-hidden="true"></span>Card number <span id="count-card" class="chip-count">0</span>
+        </button>
+        <button class="chip-btn active" data-filter="aadhaar" type="button" aria-pressed="true">
+          <span class="swatch swatch-aadhaar" aria-hidden="true"></span>Aadhaar <span id="count-aadhaar" class="chip-count">0</span>
+        </button>
+        <button class="chip-btn active" data-filter="pan" type="button" aria-pressed="true">
+          <span class="swatch swatch-pan" aria-hidden="true"></span>PAN <span id="count-pan" class="chip-count">0</span>
+        </button>
+        <button class="chip-btn active" data-filter="ip" type="button" aria-pressed="true">
+          <span class="swatch swatch-ip" aria-hidden="true"></span>IP address <span id="count-ip" class="chip-count">0</span>
+        </button>
+        <button id="btn-run-nano" class="chip-btn chip-nano" type="button" title="Find names and addresses with Gemini Nano, on your device">
+          <span id="nano-spinner" class="spinner hidden" aria-hidden="true"></span>
+          <svg class="chip-spark" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c.4 4.2 3.8 7.6 8 8-4.2.4-7.6 3.8-8 8-.4-4.2-3.8-7.6-8-8 4.2-.4 7.6-3.8 8-8z"/></svg>
+          Names &amp; addresses <span class="chip-sub">Gemini Nano</span> <span id="count-nano" class="chip-count">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- tip -->
+    <aside id="first-run-hint" class="hint" aria-label="Tip">
+      <span class="hint-dot" aria-hidden="true"></span>
+      <span><b>Tip:</b> click any colored mark to see why it was caught. Select any text to hide it yourself.</span>
+      <button id="btn-dismiss-hint" class="hint-close" type="button" aria-label="Dismiss tip">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </aside>
+
+    <!-- ============ WORKSPACE ============ -->
+    <main id="main-content" class="workspace" role="main">
+      <!-- Original -->
+      <section class="pane" aria-labelledby="original-heading">
+        <header class="pane-head">
+          <div class="pane-title-wrap">
+            <span class="pane-dot pane-dot-danger" aria-hidden="true"></span>
+            <h1 id="original-heading" class="pane-title">Your original</h1>
+            <span id="original-meta" class="pane-meta">placement_shortlist.csv · 7 lines</span>
+            <span id="original-lang" class="pane-tag hidden"></span>
+          </div>
+          <div class="pane-actions">
+            <button id="btn-clear-manual" class="btn-text hidden" type="button">Clear my marks</button>
+            <button id="btn-toggle-edit" class="btn btn-ghost btn-sm" type="button">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg>
+              <span class="lbl">Edit text</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="pane-body">
+          <div id="original-empty-zone" class="empty hidden">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 14v5.5h16V14"/></svg>
+            </div>
+            <p class="empty-title">Drop a file here</p>
+            <p class="empty-sub">A <code>.txt</code> or <code>.csv</code> up to 5 MB. Or paste text with "Edit text", or try a sample.</p>
+            <div class="empty-actions">
+              <button id="btn-empty-csv" class="btn btn-ghost btn-sm" type="button">Placement sheet</button>
+              <button id="btn-empty-txt" class="btn btn-ghost btn-sm" type="button">Support ticket</button>
+            </div>
+          </div>
+
+          <div id="original-display" class="doc-pane" tabindex="0" role="region" aria-label="Original document with private details marked"></div>
+
+          <div id="original-edit-wrapper" class="doc-pane doc-edit hidden">
+            <textarea id="original-textarea" class="editor" spellcheck="false" aria-label="Edit document text" placeholder="Paste or type your text here…"></textarea>
+          </div>
+        </div>
+
+        <footer class="pane-foot">
+          <div id="seal-original" class="seal seal-danger" aria-live="polite">Not safe to share</div>
+        </footer>
+      </section>
+
+      <!-- Safe copy -->
+      <section class="pane pane-safe" aria-labelledby="safe-heading">
+        <header class="pane-head">
+          <div class="pane-title-wrap">
+            <span class="pane-dot pane-dot-safe" aria-hidden="true"></span>
+            <h2 id="safe-heading" class="pane-title">Safe copy</h2>
+            <span id="safe-meta" class="pane-meta">Ready to share · 7 lines</span>
+          </div>
+        </header>
+        <div class="pane-body">
+          <div id="safe-display" class="doc-pane" tabindex="0" role="region" aria-label="Safe copy, ready to share"></div>
+        </div>
+        <footer class="pane-foot">
+          <div id="seal-safe" class="seal seal-clear" aria-live="polite">Safe to share</div>
+        </footer>
+      </section>
+
+      <!-- Inspector -->
+      <aside class="inspector" aria-label="Summary and tools">
+        <div class="tabs" role="tablist" aria-label="Inspector">
+          <button id="tab-btn-summary" class="panel-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-pane-summary">Summary</button>
+          <button id="tab-btn-setaside" class="panel-tab-btn" role="tab" aria-selected="false" aria-controls="tab-pane-setaside">
+            Set aside <span id="tab-count-setaside" class="tab-badge">0</span>
+          </button>
+          <button id="tab-btn-columns" class="panel-tab-btn hidden" role="tab" aria-selected="false" aria-controls="tab-pane-columns">Columns</button>
+          <button id="tab-btn-lock" class="panel-tab-btn" role="tab" aria-selected="false" aria-controls="tab-pane-lock">Lock</button>
+        </div>
+
+        <!-- Summary -->
+        <div id="tab-pane-summary" class="tab-content-pane active" role="tabpanel" aria-labelledby="tab-btn-summary">
+          <div class="score">
+            <span class="ins-label">Risk score</span>
+            <div class="score-row">
+              <span id="score-val" class="score-digits">0</span>
+              <span class="score-of">/ 100</span>
+            </div>
+            <div class="meter" aria-hidden="true"><div id="score-meter-bar" class="meter-fill"></div></div>
+            <p id="score-after-line" class="score-after">After hiding: 0. Safe to share.</p>
+          </div>
+
+          <div class="ins-block">
+            <span class="ins-label">What we found</span>
+            <ul id="findings-breakdown-list" class="found-list"></ul>
+          </div>
+
+          <div class="ins-block">
+            <span class="ins-label">Fingerprint of the safe copy</span>
+            <div id="safe-hash-display" class="hash">computing…</div>
+            <p class="ins-note">A SHA-256 code. If even one letter changes, this code changes too.</p>
+          </div>
+
+          <details class="more">
+            <summary>
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c.4 4.2 3.8 7.6 8 8-4.2.4-7.6 3.8-8 8-.4-4.2-3.8-7.6-8-8 4.2-.4 7.6-3.8 8-8z"/></svg>
+              Make fresh test data with Gemini
+            </summary>
+            <div class="more-body">
+              <p class="ins-note">Uses the Gemini API to write new, fake test files. Only a fixed prompt is sent. Your text is never sent.</p>
+              <label for="gemini-api-key" class="field-label">Google AI Studio API key (kept in memory only)</label>
+              <input id="gemini-api-key" class="field" type="password" placeholder="AIzaSy…" autocomplete="off">
+              <div class="more-actions">
+                <button id="btn-gen-csv" class="btn btn-ghost btn-sm" type="button">New placement sheet</button>
+                <button id="btn-gen-ticket" class="btn btn-ghost btn-sm" type="button">New support chat</button>
+              </div>
+              <div id="gemini-api-status" class="status" aria-live="polite"></div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Set aside -->
+        <div id="tab-pane-setaside" class="tab-content-pane" role="tabpanel" aria-labelledby="tab-btn-setaside">
+          <p class="ins-note ins-intro">These looked private but failed the real checks, so we left them alone.</p>
+          <ul id="ignored-list" class="aside-list"></ul>
+        </div>
+
+        <!-- Columns -->
+        <div id="tab-pane-columns" class="tab-content-pane" role="tabpanel" aria-labelledby="tab-btn-columns">
+          <p class="ins-note ins-intro">Hide a whole column in one click. The file stays a valid CSV.</p>
+          <div id="csv-columns-list" class="col-list"></div>
+        </div>
+
+        <!-- Lock -->
+        <div id="tab-pane-lock" class="tab-content-pane" role="tabpanel" aria-labelledby="tab-btn-lock">
+          <div class="lock-box">
+            <span class="ins-label">Lock the nickname list</span>
+            <p class="ins-note">Save which nickname means what (like <code>USER_01</code> = the real email) in a file locked with your password. Uses AES-256.</p>
+            <label for="lock-password" class="field-label">Password</label>
+            <input id="lock-password" class="field" type="password" placeholder="Pick a strong password" autocomplete="new-password">
+            <button id="btn-lock-key" class="btn btn-dark btn-sm btn-block" type="button">Download .andhaar-key</button>
+            <div id="lock-status" class="status" aria-live="polite"></div>
+          </div>
+
+          <div class="lock-box">
+            <span class="ins-label">Bring real values back</span>
+            <p class="ins-note">Load your <code>.andhaar-key</code> file and type the password. The safe copy turns back into the original.</p>
+            <label for="restore-key-file" class="field-label">Key file</label>
+            <input id="restore-key-file" class="field field-file" type="file" accept=".andhaar-key,.newname-key,.vaulty-key,.json">
+            <label for="restore-password" class="field-label">Password</label>
+            <input id="restore-password" class="field" type="password" placeholder="Password" autocomplete="current-password">
+            <button id="btn-restore-action" class="btn btn-ghost btn-sm btn-block" type="button">Restore originals</button>
+            <div id="restore-status" class="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Note card for a clicked mark -->
+  <div id="margin-note" class="note hidden" role="dialog" aria-labelledby="margin-heading">
+    <div class="note-head">
+      <span id="margin-heading" class="note-kind"><span class="swatch" id="margin-swatch" aria-hidden="true"></span><span id="margin-type"></span></span>
+      <button id="btn-close-margin" class="hint-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <code id="margin-val" class="note-val"></code>
+    <dl class="note-rows">
+      <div><dt>Why</dt><dd id="margin-reason"></dd></div>
+      <div><dt>Shows up</dt><dd><span id="margin-count"></span> time(s)</dd></div>
+      <div><dt>Becomes</dt><dd><code id="margin-replacement"></code></dd></div>
+    </dl>
+    <div id="margin-flag-container" class="note-flags"></div>
+    <div class="note-actions">
+      <button id="btn-let-through" class="btn btn-ghost btn-sm" type="button">Let this through</button>
+      <button id="btn-re-redact" class="btn btn-dark btn-sm hidden" type="button">Hide it again</button>
+      <button id="btn-remove-manual" class="btn btn-ghost btn-sm hidden" type="button">Remove my mark</button>
+    </div>
+  </div>
+
+  <!-- Hide-selection button -->
+  <button id="selection-tooltip" class="sel-tip hidden" type="button">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2" y="6" width="12" height="4" rx="1"/></svg>
+    Hide this too
+  </button>
+
+  <!-- Shortcuts -->
+  <div id="shortcuts-popover" class="shortcuts hidden" role="dialog" aria-label="Keyboard shortcuts">
+    <div class="note-head">
+      <strong>Keyboard shortcuts</strong>
+      <button id="btn-close-shortcuts" class="hint-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <ul class="shortcut-list">
+      <li><span>Black out</span><kbd>1</kbd></li>
+      <li><span>Hint</span><kbd>2</kbd></li>
+      <li><span>Nicknames</span><kbd>3</kbd></li>
+      <li><span>Download safe copy</span><kbd>D</kbd></li>
+      <li><span>Edit text</span><kbd>E</kbd></li>
+      <li><span>Close pop-ups</span><kbd>Esc</kbd></li>
+      <li><span>Show this list</span><kbd>?</kbd></li>
+    </ul>
+  </div>
+
+  <div class="drop-overlay hidden" id="drop-overlay" aria-hidden="true">
+    <div class="drop-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 14v5.5h16V14"/></svg>
+      <span>Drop to open. It stays on this device.</span>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
