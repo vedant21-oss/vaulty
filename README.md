@@ -1,4 +1,4 @@
-# NEWNAME – Keeps your Aadhaar in the dark
+# Andhaar – keeps your Aadhaar in the dark
 
 > **PromptWars × NIAT Pune 2026** (Google for Developers + Hack2Skill)  
 > **Theme:** Cybersecurity & Data Privacy  
@@ -10,7 +10,7 @@
 
 Organizations regularly share student spreadsheets, clinical notes, customer support logs, and resumes containing highly sensitive Personally Identifiable Information (PII). A single misdirected or forwarded email leaks hundreds of Aadhaar IDs, PAN cards, credit cards, and mobile numbers.
 
-**NEWNAME** is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
+**Andhaar** (a play on Aadhaar; "andhaar" means darkness) is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
 
 ---
 
@@ -27,11 +27,13 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 | **IP Addresses** | Strict IPv4 octet checks (0–255) and IPv6 full / compressed forms. Clock times (e.g., `10:30:00`) excluded. | Completed |
 | **Decoy Set-Aside** | Candidates failing validation (e.g., Luhn fail, invalid PAN holder, IP > 255) are isolated in "Looked private, but isn't" with human explanations. | Completed |
 | **Three Redaction Modes** | 1. **Full Mask:** `[REDACTED]`<br>2. **Partial Mask:** `XXXX-XXXX-1234`, `a*****@domain`<br>3. **Pseudonym:** `USER_01`, `CARD_01`, `PAN_01` (consistent across whole document). | Completed |
+| **3-Step Sticky Action Bar** | Top-anchored numbered workflow: (1) Add text, (2) Hide by mode, (3) Share safely (Download, Copy, Audit report). | Completed |
+| **Tabbed Right Case File** | Organised into `[Summary]`, `[Set aside]`, `[Columns]` (CSV only), and `[Lock & restore]`. | Completed |
 | **Interactive Margin Notes** | Clicking or focusing on any highlight reveals rule explanations, occurrence counts, and let-through toggles. | Completed |
 | **Manual Selection** | Highlight any custom text to instantly trigger "Black this out too". | Completed |
 | **CSV Engine** | RFC-compliant CSV parser handling quoted cells, embedded commas, and `\r\n`. 1-click "Hide column" masking. | Completed |
 | **Exposure Scoring** | Weighted risk score (Cards/Aadhaar: 30, PAN: 20, Phones: 10, Emails: 8, IPs: 5) with repeat decay and 100 cap. | Completed |
-| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (zero raw values). | Completed |
+| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (`tool: "Andhaar"`). | Completed |
 | **Encrypted Key Restoration** | Nickname map encrypted via **AES-256-GCM** with PBKDF2 (250,000 iterations). Restores original values with password. | Completed |
 
 ---
@@ -41,9 +43,9 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 | Google Service | Usage & Implementation | Privacy Guarantee |
 | :--- | :--- | :--- |
 | **Gemini Nano (Chrome Built-in AI)** | Prompt API (`LanguageModel.create()`) extracts complex Indian names and addresses. Chunks long text. | **100% on-device.** No network packets sent. Strict anti-hallucination verification only accepts items present verbatim in text. |
-| **Chrome Language Detector API** | `translation.createDetector()` displays document language code. | Runs locally within the browser runtime. |
-| **Gemini API (Google AI Studio)** | Generates fresh synthetic test datasets (`gemini-1.5-flash`). | Fixed prompt only. **User text is NEVER transmitted.** API key kept in JS memory only. |
-| **Google Fonts** | Fraunces, Hind, IBM Plex Mono, and Kalam. | Visual hierarchy and high-trust archival feel. |
+| **Chrome Language Detector API** | `translation.createDetector()` displays real language name in sheet header. | Runs locally within browser runtime. |
+| **Gemini API (Google AI Studio)** | Generates fresh synthetic test datasets (`gemini-1.5-flash`) located in More disclosure. | Fixed prompt only. **User text is NEVER transmitted.** API key kept in JS memory only. |
+| **Google Fonts** | Fraunces, Hind, IBM Plex Mono, and Kalam. | Archival, high-trust records room feel. |
 | **Google Cloud Run** | Hardened container deployment using Alpine Nginx on port 8080. | Includes strict CSP and security headers. |
 | **Firebase Hosting** | Serverless hosting configuration in `firebase.json`. | Includes matching zero-trust CSP headers. |
 
@@ -51,12 +53,12 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 
 ## 4. Security & Content Security Policy
 
-NEWNAME enforces a zero-trust Content Security Policy (CSP):
+Andhaar enforces a zero-trust Content Security Policy (CSP):
 ```http
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
 ```
 - **Zero Inline Scripts or Handlers:** 100% event listeners bound dynamically via ES modules.
-- **Zero Server Transmission:** User documents, CSV files, and cryptographic keys stay entirely inside the browser's memory.
+- **Zero Server Transmission:** User documents, CSV files, and cryptographic keys stay entirely inside browser memory.
 - **Web Crypto Standards:** Key derivation uses PBKDF2 with SHA-256 (250,000 rounds) and AES-256-GCM encryption with random 16-byte salt and 12-byte IV.
 - **File Guard:** 5 MB upload limit to prevent client memory exhaustion.
 
@@ -64,70 +66,26 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 ## 5. UI/UX: "The Secure Records Room"
 
-Designed as a high-trust digital records desk tailored for Indian academic and institutional workflows:
-- **Color Palette:** Deep pine-ink teal (`--brand`), parchment ground (`--ground`), crisp paper sheets (`--surface`), and ink stamps (`--seal` / `--clear`).
-- **Entity Highlighters:** Soft pastel yellow (email), green (phone), pink (card), orange (Aadhaar), violet (PAN), cyan (IP), coral (Gemini Nano names).
-- **Ink Verdict Seals:** Authentic stamps certifying document safety.
-- **Typography:** Fraunces headings, Hind interface, IBM Plex Mono documents, and Kalam margin notes.
-- **Accessibility:** WCAG AA compliant contrast, 44px touch targets, visible saffron focus rings, keyboard navigable highlights, and skip link.
+Designed for a first-time user to understand and use every feature within 10 seconds:
+- **Sticky 3-Step Sequence Bar:** 1: Add text (with samples), 2: Hide by mode (with live example preview), 3: Share safely (Download, Copy, Audit report).
+- **"Look for" Chips:** Direct toggle chips with real-time entity counts.
+- **Side-by-Side Synced Sheets:** Original and Safe copy with red margin, ruled lines, paperclip, and ink seals.
+- **Tabbed Inspector:** Summary, Set aside decoys, CSV Columns, and Password Lock & Restore.
+- **Keyboard Shortcuts:** `1/2/3` for modes, `D` for download, `E` for edit, `Esc` for notes, `?` for help popover.
 
 ---
 
 ## 6. Testing & Quality Assurance
 
-NEWNAME includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
+Andhaar includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
 
 ```bash
 npm test
 ```
 
-### Test Coverage Highlights:
-- Luhn algorithm validation & credit card brand detection (Visa, Mastercard, Amex, RuPay).
-- Verhoeff checksum algorithm for 12-digit Indian Aadhaar.
-- PAN holder letter validation (`P, C, H, F, A, T, B, L, J, G`).
-- Disguised email de-obfuscation and canonical mapping.
-- Rejection of natural language false positives (e.g. `meet at office.Tomorrow`).
-- Indian mobile phone formats, spaced digits (`9 8 7 6 5 4 3 2 1 0`), and Devanagari numerals (`०-९`).
-- Pincode, year, and currency amount exclusion.
-- Decoy set-aside logic for candidates failing validation.
-- All three redaction modes: Full, Partial, and Consistent Pseudonymisation.
-- Reversible pseudonymisation and password-locked restoration via AES-256-GCM.
-- RFC-compliant CSV parser handling embedded quotes, commas, and newlines.
-- Built-in test samples (`SAMPLE_CSV` and `SAMPLE_TXT`) validation.
-- Gemini Nano anti-hallucination validation filter.
-- Performance benchmark: processing 200× sample text in under 3 seconds.
-
 ---
 
-## 7. Project Layout
-
-```
-.
-├── index.html              # Main web application entry point
-├── package.json            # Scripts, metadata, and dependencies
-├── Dockerfile              # Production container for Google Cloud Run
-├── nginx.conf              # Nginx server configuration with CSP headers
-├── firebase.json           # Firebase Hosting configuration
-├── .gitignore              # Git ignore rules
-├── .dockerignore           # Docker build ignore rules
-├── .gcloudignore           # Google Cloud build ignore rules
-├── LICENSE                 # Open-source license
-├── README.md               # Architecture, specification, and deployment guide
-├── PROMPT_LOG.md           # Engineering prompt log
-├── css/
-│   └── styles.css          # Design system & paper room styling
-├── js/
-│   ├── engine.js           # Pure JS detection, validation, and crypto engine
-│   ├── samples.js          # Built-in noisy datasets and planted decoys
-│   ├── gemini.js           # Gemini Nano and Gemini API integrations
-│   └── app.js              # Application controller & DOM coordinator
-└── tests/
-    └── engine.test.js      # 33 unit tests for node:test
-```
-
----
-
-## 8. Run & Deploy Commands
+## 7. Run & Deploy Commands
 
 ### Local Development
 ```bash
@@ -141,7 +99,7 @@ npm start
 
 ### Deploy to Google Cloud Run
 ```bash
-gcloud run deploy newname \
+gcloud run deploy andhaar \
   --source . \
   --region asia-south1 \
   --allow-unauthenticated

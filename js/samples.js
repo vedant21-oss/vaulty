@@ -1,6 +1,6 @@
 /**
  * @file samples.js
- * @description Built-in noisy test datasets for NEWNAME.
+ * @description Built-in noisy test datasets for Andhaar.
  * Contains both valid sensitive PII and carefully planted decoys/traps to test validation algorithms.
  */
 

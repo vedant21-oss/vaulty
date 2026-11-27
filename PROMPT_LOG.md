@@ -1,13 +1,13 @@
-# PROMPT_LOG.md — NEWNAME Engineering Session
+# PROMPT_LOG.md — Andhaar Engineering Session
 
-This document details the engineering prompts, iterative reasoning, and system modifications performed during the development of **NEWNAME** for the PromptWars × NIAT Pune 2026 hackathon.
+This document details the engineering prompts, iterative reasoning, and system modifications performed during the development of **Andhaar** for the PromptWars × NIAT Pune 2026 hackathon.
 
 ---
 
 ## Prompt 1: Initial System Architecture & Engine Specification
 
 ### User Request Summary
-Build a complete, production-quality, zero-trust client-side PII sanitisation and data redaction tool named **NEWNAME** ("keeps your Aadhaar in the dark").
+Build a complete, production-quality, zero-trust client-side PII sanitisation and data redaction tool named **Andhaar** ("keeps your Aadhaar in the dark").
 Key requirements:
 - Pure JS detection engine running in both Node and browser without DOM/network dependencies.
 - Luhn validation for credit cards (Visa, Mastercard, Amex, RuPay).
@@ -19,59 +19,68 @@ Key requirements:
 - Decoy isolation ("Looked private, but isn't") for validation-failing candidates.
 - Three redaction modes: Full Mask `[REDACTED]`, Partial Mask (`XXXX-1234`), and Consistent Pseudonymisation (`USER_01`).
 - Interactive margin notes, CSV mode with column hiding, exposure risk scoring (0–100), and audit report JSON download.
-- Password-locked restore using AES-256-GCM + PBKDF2 (250,000 iterations) downloading `.newname-key`.
+- Password-locked restore using AES-256-GCM + PBKDF2 (250,000 iterations).
 - Google services integration: on-device Gemini Nano with anti-hallucination checks, Chrome Language Detector API, and Gemini API for synthetic data generation.
 - Strict Content Security Policy, Dockerfile, Nginx config on port 8080, Firebase Hosting config, and comprehensive test suite.
 
 ### Actions & Changes
-1. **Architecture & Engine (`js/engine.js`):**
-   - Implemented mathematical tables for Verhoeff dihedral group calculation.
-   - Built Luhn algorithm validation mod 10 and card brand heuristics.
-   - Implemented Indian PAN holder validation (`P, C, H, F, A, T, B, L, J, G`).
-   - Built Devanagari numeral normalization to ASCII while preserving 1:1 character index offsets.
-   - Built multi-format email de-obfuscation and canonical key mapping.
-   - Engineered priority claiming logic to prevent double-counting (e.g. Aadhaar claimed before phone).
-   - Designed Web Crypto PBKDF2 + AES-256-GCM encryption/decryption routines.
-   - Built RFC-compliant CSV parser with cell coordinate tracking and column masking.
-
-2. **Datasets & Decoys (`js/samples.js`):**
-   - Created `SAMPLE_CSV` (`placement_shortlist.csv`) containing 6 realistic student records with mixed formats and planted traps.
-   - Created `SAMPLE_TXT` (`support_ticket.txt`) containing unstructured support logs and decoy candidates.
-
-3. **Google AI Integration (`js/gemini.js`):**
-   - Implemented on-device Chrome Prompt API (`LanguageModel`) chunking and anti-hallucination verification.
-   - Added Chrome Language Detector API binding.
-   - Added Gemini API caller using Google AI Studio with hardcoded synthetic prompts (zero user data transmission).
-
-4. **Test Suite (`tests/engine.test.js`):**
-   - Authored 33 comprehensive test cases using Node.js built-in test runner (`node:test`).
-   - Verified edge cases including disguised emails, spaced numerals, Devanagari numerals, decoy set-asides, CSV formatting, encryption/decryption, and performance benchmarking.
-
-5. **User Interface & Visual Design (`css/styles.css` & `index.html`):**
-   - Implemented "The Secure Records Room" design theme using custom properties with `light-dark()`.
-   - Built dual side-by-side paper sheets with ruled lines, red margin, paperclip, and synchronized scrolling.
-   - Crafted ink seals with animated stamp-down effect.
-   - Added interactive margin note cards, floating manual selection tooltips, exposure meter, and key restoration disclosure panels.
-   - Enforced WCAG AA contrast standards, keyboard navigation, and visible saffron focus rings.
-
-6. **Controller (`js/app.js`):**
-   - Wired up reactive state management, debounced re-analysis (~120ms), DOM highlight mapping, file downloads, key generation, and AI hooks.
-
-7. **Deployment & Infrastructure:**
-   - Created `Dockerfile` and `nginx.conf` listening on port 8080 with strict CSP headers.
-   - Configured `firebase.json` for Firebase Hosting deployment.
-   - Configured `.gitignore`, `.dockerignore`, `.gcloudignore`, and `LICENSE`.
+1. **Engine (`js/engine.js`):** Built detection, mathematical validation (Luhn, Verhoeff), normalization (Devanagari, emails, phones), priority claiming, AES-256-GCM + PBKDF2 crypto, and CSV parser.
+2. **Datasets (`js/samples.js`):** Created `SAMPLE_CSV` (`placement_shortlist.csv`) and `SAMPLE_TXT` (`support_ticket.txt`) with planted decoys.
+3. **Google AI Integration (`js/gemini.js`):** Connected Chrome Prompt API, Translation Detector, and Gemini API synthetic prompts.
+4. **Unit Tests (`tests/engine.test.js`):** Authored 33 unit tests for `node:test`. All passed.
 
 ---
 
-## Prompt 2: Product Renaming & Validation
+## Prompt 2: UI Simplification & Exact "Andhaar" Branding
 
-### User Instruction
-"Rename the product from 'Andhaar' to 'NEWNAME' everywhere (title, logo, header, footer, README, PROMPT_LOG, package.json, file names like .andhaar-key → .newname-key, audit report 'tool' field). Keep the logo style with a redaction bar over part of the name. Don't change any logic. Run npm test after."
+### User Request Summary
+Fix and simplify the UI. Product name must be exactly "Andhaar" everywhere:
+- Logo: "Andhaar" with only the letters "dh" covered by the black redaction bar.
+- Title, header, footer, README, PROMPT_LOG, package.json, `.andhaar-key` key file extension, and audit report "tool" field.
+- Do not touch `js/engine.js`.
+- Strict CSP retained.
+- Slim one-line header: logo + tagline left; privacy pill + theme toggle right. Real language name in sheet header if detected.
+- Sticky 3-step action bar directly under header:
+  (1) Add text with sample buttons, (2) Hide by mode with live preview example under active option, (3) Share safely (Download, Copy, Audit report).
+- Slim row of "Look for" chips with live count badges.
+- Side-by-side sheets filling viewport height (`calc(100vh - 170px)`) with synced scrolling, compact headers, 14px document font, `overflow-wrap: anywhere;` to prevent breaking lines.
+- Right panel converted to 4 keyboard-accessible tabs: `Summary`, `Set aside (N)`, `Columns` (CSV only), and `Lock & restore`.
+- Gemini API moved to "More" disclosure at bottom of Summary tab.
+- Empty state drop zone in original sheet when no text.
+- Dismissible first-run hint line in memory.
+- Keyboard shortcuts popover and hotkeys (1/2/3, D, E, Esc, ?).
+- Responsive verified at 1440px, 1280px, 1000px, 390px. Run `npm test`.
 
 ### Actions & Changes
-- Updated branding across `index.html`, `css/styles.css`, `js/app.js`, `js/engine.js`, `package.json`, `README.md`, and `PROMPT_LOG.md`.
-- Styled logo as `NEW<span class="logo-redaction-bar">█</span>AME` with animated redaction swipe and saffron accent.
-- Configured key export file name as `.newname-key` (while maintaining backward compatibility with `.andhaar-key` on restore).
-- Set audit report `tool` property to `"NEWNAME"`.
-- Executed `npm test`: all 33 unit tests passed with zero failures.
+1. **Branding & Logo (`index.html`, `css/styles.css`):**
+   - Configured logo as `An<span class="logo-redaction-bar">dh</span>aar` so only the letters "dh" are swiped by the black redaction bar with saffron accent.
+   - Updated `<title>` to `Andhaar – keeps your Aadhaar in the dark`.
+   - Updated footer, README, PROMPT_LOG, and `package.json` (`"name": "andhaar"`).
+2. **Slim Header:**
+   - Reduced to a sleek 48px height containing logo + tagline on left, privacy pill + shortcut `?` + theme toggle on right.
+   - Removed header language pill; language name is displayed directly inside the original sheet header when detected.
+3. **Sticky 3-Step Bar:**
+   - Implemented sticky CSS container at `top: 0; z-index: 50;` with numbered badges:
+     * `(1) Add text`: sample buttons + Open file + "or drop a file anywhere".
+     * `(2) Hide by`: segmented buttons with dynamic live subtitle (`[REDACTED]`, `XXXX-1234`, `USER_01`) under the active option.
+     * `(3) Share safely`: primary Download safe copy + Copy + Audit report.
+4. **"Look for" Chips:**
+   - Single slim row with exact requested labels: Email, Phone, Card number, Aadhaar, PAN, IP address, and `+ Names & addresses (Gemini Nano)`.
+   - Live entity count badges updated dynamically. Small CSS spinner during Nano scan.
+5. **Full-Height Synced Sheets:**
+   - Height set to `calc(100vh - 170px)` with synchronized scroll listeners.
+   - Header shows file name and line counts. `[Clear manual marks]` button appears only when manual marks exist.
+   - 14px monospace font with `overflow-wrap: anywhere;` preventing horizontal overflow on long separator lines.
+   - Empty state drop zone shown when no text is loaded.
+6. **Tabbed Right Panel:**
+   - Rebuilt into 4 tabs with full keyboard navigation (arrow keys, role=tablist/tab/tabpanel).
+   - Summary tab hosts exposure score (40px font), meter, "after redaction" line, breakdown counts, fingerprint, and "More" disclosure for Gemini API test data.
+   - Set aside tab displays decoys with count badge.
+   - Columns tab displays CSV column masking controls.
+   - Lock & restore tab handles `.andhaar-key` encryption/decryption.
+7. **Keyboard Shortcuts & First-Run Hint:**
+   - Added dismissible first-run hint line.
+   - Bound global hotkeys: `1`/`2`/`3` (modes), `D` (download), `E` (edit), `Esc` (close), `?` (help popover).
+8. **Compliance & Verification:**
+   - `js/engine.js` kept completely untouched.
+   - Ran `npm test`: all 33 tests passed cleanly.
