@@ -119,3 +119,12 @@ gcloud run deploy vaulty \
 ```bash
 firebase deploy --only hosting
 ```
+
+---
+
+## 8. Built With
+
+- **Google:** Gemini Nano (Chrome built-in AI), Chrome Language Detector, Gemini API (Google AI Studio), Google Cloud Run, Firebase Hosting, Google Fonts.
+- **Libraries:** three.js r160 (MIT) for the 3D hero.
+- **AI assistance:** the landing page and app UI redesign were made with help from Claude (Anthropic).
+
