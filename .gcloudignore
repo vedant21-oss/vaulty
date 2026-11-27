@@ -1,0 +1,9 @@
+node_modules/
+tests/
+.git/
+.gitignore
+.dockerignore
+.gcloudignore
+README.md
+PROMPT_LOG.md
+*.newname-key

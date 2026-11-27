@@ -1,0 +1,28 @@
+{
+  "name": "newname",
+  "version": "1.0.0",
+  "description": "Browser-based client-side PII sanitisation and data redaction tool with zero cloud leakage.",
+  "type": "module",
+  "main": "js/engine.js",
+  "scripts": {
+    "test": "node --test tests/engine.test.js",
+    "start": "python3 -m http.server 8080",
+    "deploy:run": "gcloud run deploy newname --source . --region asia-south1 --allow-unauthenticated",
+    "deploy:firebase": "firebase deploy --only hosting"
+  },
+  "keywords": [
+    "pii",
+    "redaction",
+    "sanitisation",
+    "privacy",
+    "cybersecurity",
+    "luhn",
+    "verhoeff",
+    "aadhaar",
+    "pan",
+    "client-side",
+    "zero-trust"
+  ],
+  "author": "Vedant Sachin Malode",
+  "license": "MIT"
+}

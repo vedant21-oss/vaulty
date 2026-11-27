@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+  <meta name="description" content="NEWNAME - Browser-based client-side PII sanitisation and data redaction tool. Zero cloud leakage.">
+  <title>NEWNAME – Keeps your Aadhaar in the dark</title>
+
+  <!-- Google Fonts: Fraunces, Hind, IBM Plex Mono, Kalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Hind:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Top Slim Header -->
+  <header class="app-header" role="banner">
+    <div class="brand-wrapper">
+      <h1 class="brand-logo" aria-label="NEWNAME">
+        NEW<span class="logo-redaction-bar">█</span>AME
+      </h1>
+      <span class="brand-tagline">keeps your Aadhaar in the dark</span>
+    </div>
+
+    <div class="header-status-group">
+      <div id="language-pill" class="privacy-pill hidden" aria-live="polite">
+        <span id="language-text">Lang: Detected</span>
+      </div>
+      <div id="privacy-pill" class="privacy-pill" aria-live="polite">
+        <span class="privacy-dot" aria-hidden="true"></span>
+        <span id="privacy-status-text">Offline-safe · 0 bytes of your text sent</span>
+      </div>
+      <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle light or dark theme">
+        Theme
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main id="main-content" class="main-wrapper" role="main">
+    <!-- Toolbar Section -->
+    <section class="toolbar-section" aria-label="Document controls and redaction modes">
+      <!-- Load Section -->
+      <div class="toolbar-group">
+        <span class="group-label">Load:</span>
+        <button id="btn-load-csv" class="btn-secondary" type="button">Placement sheet (.csv)</button>
+        <button id="btn-load-txt" class="btn-secondary" type="button">Support ticket (.txt)</button>
+        <label for="file-upload" class="btn-secondary">
+          Open .txt / .csv
+        </label>
+        <input id="file-upload" class="file-input-hidden" type="file" accept=".txt,.csv,text/plain,text/csv">
+      </div>
+
+      <!-- Hide By Mode -->
+      <div class="toolbar-group">
+        <span class="group-label">Hide by:</span>
+        <div class="segmented-control" role="radiogroup" aria-label="Redaction mode">
+          <button id="mode-full" class="segment-btn" type="button" role="radio" aria-checked="false">
+            Blacking out [REDACTED]
+          </button>
+          <button id="mode-partial" class="segment-btn" type="button" role="radio" aria-checked="false">
+            Leaving a hint XXXX-1234
+          </button>
+          <button id="mode-pseudonym" class="segment-btn active" type="button" role="radio" aria-checked="true">
+            Using nicknames USER_01
+          </button>
+        </div>
+      </div>
+
+      <!-- Look For Filter Chips -->
+      <div class="toolbar-group">
+        <span class="group-label">Look for:</span>
+        <div class="filter-chips-group">
+          <button class="chip-btn active" data-filter="email" type="button" aria-pressed="true">
+            <span class="swatch swatch-email" aria-hidden="true"></span> Emails
+          </button>
+          <button class="chip-btn active" data-filter="phone" type="button" aria-pressed="true">
+            <span class="swatch swatch-phone" aria-hidden="true"></span> Phones
+          </button>
+          <button class="chip-btn active" data-filter="card" type="button" aria-pressed="true">
+            <span class="swatch swatch-card" aria-hidden="true"></span> Cards
+          </button>
+          <button class="chip-btn active" data-filter="aadhaar" type="button" aria-pressed="true">
+            <span class="swatch swatch-aadhaar" aria-hidden="true"></span> Aadhaar
+          </button>
+          <button class="chip-btn active" data-filter="pan" type="button" aria-pressed="true">
+            <span class="swatch swatch-pan" aria-hidden="true"></span> PAN
+          </button>
+          <button class="chip-btn active" data-filter="ip" type="button" aria-pressed="true">
+            <span class="swatch swatch-ip" aria-hidden="true"></span> IPs
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side-by-side Workspace Grid -->
+    <div class="workspace-grid">
+      <!-- Sheet 1: Your Original -->
+      <section class="paper-sheet" aria-labelledby="original-heading">
+        <div class="paperclip-clip" aria-hidden="true"></div>
+        <header class="sheet-header">
+          <h2 id="original-heading" class="sheet-title">Your original</h2>
+          <div class="sheet-actions">
+            <button id="btn-toggle-edit" class="btn-secondary" type="button">Edit text</button>
+            <button id="btn-clear-manual" class="btn-secondary" type="button">Clear manual marks</button>
+          </div>
+        </header>
+
+        <div class="sheet-body-container">
+          <div class="sheet-margin-line" aria-hidden="true"></div>
+          
+          <!-- Highlighted display view -->
+          <div id="original-display" class="doc-viewer-pane" tabindex="0" role="region" aria-label="Original document with sensitive entities highlighted"></div>
+
+          <!-- Raw editable textarea (shown when edit clicked) -->
+          <div id="original-edit-wrapper" class="doc-viewer-pane hidden">
+            <textarea id="original-textarea" class="editor-textarea" spellcheck="false" aria-label="Raw editable document text"></textarea>
+          </div>
+
+          <!-- Verdict Ink Seal -->
+          <div id="seal-original" class="ink-seal ink-seal-danger" aria-live="polite">
+            NOT SAFE TO SHARE · 31 private items
+          </div>
+        </div>
+      </section>
+
+      <!-- Sheet 2: Safe Copy -->
+      <section class="paper-sheet" aria-labelledby="safe-heading">
+        <div class="paperclip-clip" aria-hidden="true"></div>
+        <header class="sheet-header">
+          <h2 id="safe-heading" class="sheet-title">Safe copy</h2>
+          <div class="sheet-actions">
+            <button id="btn-copy-safe" class="btn-secondary" type="button">Copy</button>
+          </div>
+        </header>
+
+        <div class="sheet-body-container">
+          <div class="sheet-margin-line" aria-hidden="true"></div>
+          <div id="safe-display" class="doc-viewer-pane" tabindex="0" role="region" aria-label="Sanitised safe copy for sharing"></div>
+
+          <!-- Verdict Ink Seal -->
+          <div id="seal-safe" class="ink-seal ink-seal-clear" aria-live="polite">
+            CLEARED FOR SHARING · TODAY
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Case File Slip -->
+      <aside class="case-file-slip" aria-label="Audit summary and controls">
+        <h2 class="slip-title">Case file</h2>
+
+        <!-- Exposure Score Section -->
+        <div class="score-box" aria-live="polite">
+          <div class="section-subhead">Exposure score</div>
+          <div id="score-val" class="score-number">100</div>
+          <div class="score-meter-track" aria-hidden="true">
+            <div id="score-meter-bar" class="score-meter-fill"></div>
+          </div>
+          <div id="score-summary" class="score-summary-text">High privacy risk detected before redaction.</div>
+        </div>
+
+        <!-- Entity Findings Breakdown -->
+        <div class="findings-section">
+          <h3 class="section-subhead">What we found</h3>
+          <ul id="findings-list" class="findings-list"></ul>
+        </div>
+
+        <!-- Set Aside Traps & Decoys -->
+        <div class="findings-section">
+          <h3 class="section-subhead">Looked private, but isn't</h3>
+          <ul id="ignored-list" class="ignored-list"></ul>
+        </div>
+
+        <!-- CSV Column Hide Controls (Shown if CSV) -->
+        <div id="csv-columns-panel" class="columns-section hidden">
+          <h3 class="section-subhead">Columns in this sheet</h3>
+          <div id="csv-columns-list" class="columns-chips-container"></div>
+        </div>
+
+        <!-- Download Actions -->
+        <div class="slip-actions">
+          <button id="btn-download-safe" class="btn-primary" type="button">
+            Download safe copy
+          </button>
+          <button id="btn-download-audit" class="btn-secondary" type="button">
+            Download audit report (JSON)
+          </button>
+          <div class="section-subhead">SHA-256 fingerprint:</div>
+          <div id="safe-hash-display" class="hash-label">computing...</div>
+        </div>
+
+        <!-- Key Management Disclosures -->
+        <details class="disclosure-details">
+          <summary class="disclosure-summary">Lock the nickname key</summary>
+          <div class="disclosure-body">
+            <p>Encrypt the nickname-to-original map using AES-256-GCM (PBKDF2 250,000 rounds) and download a key file.</p>
+            <label for="lock-password" class="section-subhead">Enter master password:</label>
+            <input id="lock-password" class="input-text" type="password" placeholder="Passphrase...">
+            <button id="btn-lock-key" class="btn-primary" type="button">Download .newname-key</button>
+            <div id="lock-status" class="ai-status-text"></div>
+          </div>
+        </details>
+
+        <details class="disclosure-details">
+          <summary class="disclosure-summary">Bring real values back</summary>
+          <div class="disclosure-body">
+            <p>Upload your <code>.newname-key</code> file and type the password to restore the original document.</p>
+            <label for="restore-key-file" class="section-subhead">Key file (.newname-key):</label>
+            <input id="restore-key-file" class="input-text" type="file" accept=".newname-key,.andhaar-key,.vaulty-key,.json">
+            <label for="restore-password" class="section-subhead">Password:</label>
+            <input id="restore-password" class="input-text" type="password" placeholder="Passphrase...">
+            <button id="btn-restore-action" class="btn-secondary" type="button">Restore originals</button>
+            <div id="restore-status" class="ai-status-text"></div>
+          </div>
+        </details>
+      </aside>
+    </div>
+
+    <!-- Pinned Margin Note Card (Interactive popup for highlights) -->
+    <div id="margin-note" class="margin-note-card hidden" role="dialog" aria-labelledby="margin-heading">
+      <div class="margin-card-header">
+        <span id="margin-heading">Field Note</span>
+        <button id="btn-close-margin" class="btn-small-hide" type="button" aria-label="Close note">✕</button>
+      </div>
+      <div class="margin-card-meta">
+        <div><strong>Type:</strong> <span id="margin-type"></span></div>
+        <div><strong>Detected value:</strong> <code id="margin-val"></code></div>
+        <div><strong>Rule:</strong> <span id="margin-reason"></span></div>
+        <div id="margin-flag-container"></div>
+        <div><strong>Appears:</strong> <span id="margin-count"></span> time(s)</div>
+        <div><strong>Becomes:</strong> <span id="margin-replacement"></span></div>
+      </div>
+      <div class="margin-card-actions">
+        <button id="btn-let-through" class="btn-secondary" type="button">Let this through</button>
+        <button id="btn-re-redact" class="btn-secondary hidden" type="button">Black it out again</button>
+        <button id="btn-remove-manual" class="btn-secondary hidden" type="button">Remove my mark</button>
+      </div>
+    </div>
+
+    <!-- Selection Tooltip for Manual Redaction -->
+    <button id="selection-tooltip" class="selection-tooltip hidden" type="button">
+      Black this out too
+    </button>
+
+    <!-- Google AI Services Panel (Zero Cloud Leakage) -->
+    <section class="ai-services-section" aria-label="Google AI Services">
+      <h2 class="slip-title">Google AI Privacy Services</h2>
+      <div class="ai-grid">
+        <!-- Gemini Nano Card -->
+        <div class="ai-card">
+          <h3 class="ai-card-title">Find names and addresses · Gemini Nano</h3>
+          <p class="ai-card-desc">
+            Runs 100% locally on your device via Chrome built-in Prompt API. Your text is NEVER sent to the cloud. Includes strict anti-hallucination checks.
+          </p>
+          <button id="btn-run-nano" class="btn-secondary" type="button">
+            Scan with Gemini Nano
+          </button>
+          <div id="nano-status" class="ai-status-text">Checking on-device model status...</div>
+        </div>
+
+        <!-- Gemini API Test Data Card -->
+        <div class="ai-card">
+          <h3 class="ai-card-title">Make fresh test data · Gemini API</h3>
+          <p class="ai-card-desc">
+            Generate synthetic messy Indian test datasets from Google AI Studio. Sends ONLY our fixed hardcoded prompt. User text is NEVER sent.
+          </p>
+          <label for="gemini-api-key" class="section-subhead">Google AI Studio API Key (kept in memory only):</label>
+          <input id="gemini-api-key" class="input-text" type="password" placeholder="AIzaSy...">
+          <div class="toolbar-group">
+            <button id="btn-gen-csv" class="btn-secondary" type="button">New placement sheet</button>
+            <button id="btn-gen-ticket" class="btn-secondary" type="button">New support chat</button>
+          </div>
+          <div id="gemini-api-status" class="ai-status-text">Ready to generate fictional datasets.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How NEWNAME Decides Explainer -->
+    <section class="explainer-section" aria-label="Security and validation logic">
+      <h2 class="explainer-title">How NEWNAME decides</h2>
+      <div class="explainer-grid">
+        <div class="explainer-box">
+          <div class="explainer-box-head">Cards & Luhn</div>
+          <p class="explainer-box-text">
+            13–19 digit candidates are checked with the Luhn checksum algorithm (mod 10). Valid cards (Visa, Mastercard, Amex, RuPay) are redacted; order numbers that fail Luhn are set aside.
+          </p>
+        </div>
+        <div class="explainer-box">
+          <div class="explainer-box-head">Aadhaar & Verhoeff</div>
+          <p class="explainer-box-text">
+            Aadhaar numbers must have 12 digits, start with 2–9, and pass the dihedral Verhoeff checksum table. Numbers with failing checksums or starting with 0/1 are excluded.
+          </p>
+        </div>
+        <div class="explainer-box">
+          <div class="explainer-box-head">PAN Holder Validation</div>
+          <p class="explainer-box-text">
+            5 letters + 4 digits + 1 letter. The 4th character must be a registered Indian taxpayer type (P, C, H, F, A, T, B, L, J, G). Non-matching patterns are marked as decoys.
+          </p>
+        </div>
+        <div class="explainer-box">
+          <div class="explainer-box-head">Disguised Data</div>
+          <p class="explainer-box-text">
+            De-obfuscates disguised emails (e.g. <code>name [at] domain [dot] com</code>), spaced mobile numbers, and Devanagari digits (०-९) to ensure no leaked entity escapes.
+          </p>
+        </div>
+        <div class="explainer-box">
+          <div class="explainer-box-head">Names via Gemini Nano</div>
+          <p class="explainer-box-text">
+            Extracts complex Indian names and physical addresses using local on-device Chrome Prompt API. Anti-hallucination verification filters out any entity not literally present in the raw text.
+          </p>
+        </div>
+        <div class="explainer-box">
+          <div class="explainer-box-head">Your Text Stays Here</div>
+          <p class="explainer-box-text">
+            Zero telemetry, zero analytics, zero external network requests. AES-256-GCM encryption with PBKDF2 ensures only authorized holders can reverse pseudonymisation.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    NEWNAME · Made solo at PromptWars × NIAT Pune · works offline · no tracking
+  </footer>
+
+  <!-- Application Logic (Pure ES Module, No inline scripts) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
