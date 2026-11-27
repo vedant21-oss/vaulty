@@ -1,6 +1,6 @@
 /**
  * @file gemini.js
- * @description Client-side integration for Google AI services in Andhaar.
+ * @description Client-side integration for Google AI services in Vaulty.
  * Features:
  * 1. Gemini Nano (Chrome Built-in Prompt API) - 100% on-device local inference for entity recognition.
  * 2. Chrome Language Detector API - 100% on-device language identification.

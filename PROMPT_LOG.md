@@ -1,6 +1,6 @@
-# PROMPT_LOG.md — Andhaar Engineering Session
+# PROMPT_LOG.md — Vaulty Engineering Session
 
-This document details the engineering prompts, iterative reasoning, and system modifications performed during the development of **Andhaar** for the PromptWars × NIAT Pune 2026 hackathon.
+This document details the engineering prompts, iterative reasoning, and system modifications performed during the development of **Vaulty** (first called Andhaar) for the PromptWars × NIAT Pune 2026 hackathon.
 
 ---
 
@@ -99,4 +99,17 @@ The UI felt weak. Build a professional landing page and restyle the app, followi
 4. **App (`app.html`, `css/app.css`):** Same look. Top bar, numbered step bar, chips, two panes and a tabbed inspector, an anchored note card, a drop overlay, and toasts instead of `alert()`. All element IDs were kept, so `js/app.js` logic is unchanged apart from UI wiring and plain-language messages.
 5. **Deploy:** Dockerfile now ships `app.html` and `favicon.svg`. The old `css/styles.css` was removed.
 6. **Verification:** `npm test` passes (`engine.js` untouched). Headless Chrome checks at 1440px and 390px in light and dark show no console errors and no sideways scroll. App flows tested: modes, filters, column hiding, let-through, samples, empty state.
+
+---
+
+## Prompt 4: Rename to Vaulty
+
+### User Request Summary
+Rename the product from "Andhaar" to "Vaulty".
+
+### Actions & Changes
+- Brand name, page titles, logo (now "va▇▇ty" with "ul" under the redaction bar), footer tagline ("Keeps your private data in the vault"), 3D card, lanyard and card back.
+- Key file extension is now `.vaulty-key`. Restore still accepts old `.andhaar-key` files.
+- Audit report file `vaulty_audit_report.json` with `tool: "Vaulty"`; `package.json` name and Cloud Run service name are now `vaulty`.
+- Earlier entries in this log keep the old name, since they describe what happened at the time.
 

@@ -1,6 +1,6 @@
 /**
  * @file app.js
- * @description Main application controller for Andhaar.
+ * @description Main application controller for Vaulty.
  * Streamlined 3-step UI, tabbed audit panel, keyboard shortcuts, and zero-trust client-side processing.
  */
 
@@ -740,10 +740,10 @@ function initEventListeners() {
       exposureAfter: scoreAfter.score,
       safeHash: hash
     });
-    // Ensure product name is Andhaar
-    report.tool = 'Andhaar';
+    // Ensure product name is Vaulty
+    report.tool = 'Vaulty';
 
-    downloadFile(JSON.stringify(report, null, 2), 'andhaar_audit_report.json', 'application/json');
+    downloadFile(JSON.stringify(report, null, 2), 'vaulty_audit_report.json', 'application/json');
     toast('Report downloaded.');
   });
 
@@ -916,7 +916,7 @@ function initEventListeners() {
     }
   });
 
-  // Lock Key (AES-256-GCM Encrypt & Download .andhaar-key)
+  // Lock Key (AES-256-GCM Encrypt & Download .vaulty-key)
   btnLockKey.addEventListener('click', async () => {
     const pass = lockPasswordInput.value.trim();
     if (!pass) {
@@ -927,9 +927,9 @@ function initEventListeners() {
     try {
       lockStatus.textContent = 'Locking… (this takes a second on purpose)';
       const bundle = await encryptKeyMap(state.reverseMap, pass);
-      bundle.tool = 'Andhaar';
+      bundle.tool = 'Vaulty';
       const base = state.fileName.replace(/\.[^/.]+$/, '');
-      downloadFile(JSON.stringify(bundle, null, 2), `${base}.andhaar-key`, 'application/json');
+      downloadFile(JSON.stringify(bundle, null, 2), `${base}.vaulty-key`, 'application/json');
       lockStatus.textContent = 'Key file saved. Keep it and the password somewhere safe.';
       toast('Locked key file downloaded.');
       lockPasswordInput.value = '';

@@ -1,4 +1,4 @@
-# Andhaar – keeps your Aadhaar in the dark
+# Vaulty – your private data, kept in the vault
 
 > **PromptWars × NIAT Pune 2026** (Google for Developers + Hack2Skill)  
 > **Theme:** Cybersecurity & Data Privacy  
@@ -10,7 +10,7 @@
 
 Organizations regularly share student spreadsheets, clinical notes, customer support logs, and resumes containing highly sensitive Personally Identifiable Information (PII). A single misdirected or forwarded email leaks hundreds of Aadhaar IDs, PAN cards, credit cards, and mobile numbers.
 
-**Andhaar** (a play on Aadhaar; "andhaar" means darkness) is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
+**Vaulty** is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
 
 ---
 
@@ -33,7 +33,7 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 | **Manual Selection** | Highlight any custom text to instantly trigger "Black this out too". | Completed |
 | **CSV Engine** | RFC-compliant CSV parser handling quoted cells, embedded commas, and `\r\n`. 1-click "Hide column" masking. | Completed |
 | **Exposure Scoring** | Weighted risk score (Cards/Aadhaar: 30, PAN: 20, Phones: 10, Emails: 8, IPs: 5) with repeat decay and 100 cap. | Completed |
-| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (`tool: "Andhaar"`). | Completed |
+| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (`tool: "Vaulty"`). | Completed |
 | **Encrypted Key Restoration** | Nickname map encrypted via **AES-256-GCM** with PBKDF2 (250,000 iterations). Restores original values with password. | Completed |
 
 ---
@@ -53,7 +53,7 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 
 ## 4. Security & Content Security Policy
 
-Andhaar enforces a zero-trust Content Security Policy (CSP):
+Vaulty enforces a zero-trust Content Security Policy (CSP):
 ```http
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
 ```
@@ -69,7 +69,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 Two pages, one design system (`css/base.css`): paper-white and ink-black with one saffron accent, big type with square full stops, and small uppercase labels. Light and dark themes follow the system setting, and the toggle remembers your choice.
 
 **Landing page (`index.html`)**
-- **3D hero (three.js):** a sample ID card hangs on an Andhaar lanyard. A scan line sweeps down and blacks out the Aadhaar, PAN and phone, then a "Safe to share" stamp lands. Drag to turn it; replay and pause buttons included. Falls back to a flat card if WebGL is off, and respects reduced-motion settings.
+- **3D hero (three.js):** a sample ID card hangs on an Vaulty lanyard. A scan line sweeps down and blacks out the Aadhaar, PAN and phone, then a "Safe to share" stamp lands. Drag to turn it; replay and pause buttons included. Falls back to a flat card if WebGL is off, and respects reduced-motion settings.
 - **Scroll-driven "How it works":** a sticky document goes from *added* → *private items marked* → *blacked out* as you scroll the three steps.
 - **Live playground:** runs the real engine on the page, so it updates as you type, with all three hiding styles.
 - Sections: the problem, what it finds (7 kinds), real vs. fake numbers, Google AI, privacy promise, FAQ.
@@ -87,7 +87,7 @@ three.js r160 (MIT) is bundled at `js/vendor/three.module.min.js` so the strict 
 
 ## 6. Testing & Quality Assurance
 
-Andhaar includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
+Vaulty includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
 
 ```bash
 npm test
@@ -109,7 +109,7 @@ npm start
 
 ### Deploy to Google Cloud Run
 ```bash
-gcloud run deploy andhaar \
+gcloud run deploy vaulty \
   --source . \
   --region asia-south1 \
   --allow-unauthenticated

@@ -1,6 +1,6 @@
 /**
  * @file samples.js
- * @description Built-in noisy test datasets for Andhaar.
+ * @description Built-in noisy test datasets for Vaulty.
  * Contains both valid sensitive PII and carefully planted decoys/traps to test validation algorithms.
  */
 

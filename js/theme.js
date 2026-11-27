@@ -5,7 +5,7 @@
  */
 (function () {
   'use strict';
-  var KEY = 'andhaar-theme';
+  var KEY = 'vaulty-theme';
   var root = document.documentElement;
 
   try {
@@ -25,6 +25,6 @@
     var next = currentTheme() === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem(KEY, next); } catch (err) { /* ignore */ }
-    document.dispatchEvent(new CustomEvent('andhaar:theme', { detail: next }));
+    document.dispatchEvent(new CustomEvent('vaulty:theme', { detail: next }));
   });
 })();

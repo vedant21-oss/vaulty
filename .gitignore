@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 *.newname-key
+*.vaulty-key
 *.andhaar-key
 *.vaulty-key
 *.log

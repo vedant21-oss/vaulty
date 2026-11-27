@@ -135,12 +135,12 @@ function drawFace(s) {
   spaced(c, -1);
   c.fillStyle = '#FAFAF7';
   const by = TEX_H - 22;
-  c.fillText('an', 56, by);
-  const anW = c.measureText('an').width;
-  const dhW = c.measureText('dh').width;
+  c.fillText('va', 56, by);
+  const anW = c.measureText('va').width;
+  const dhW = c.measureText('ul').width;
   c.fillRect(56 + anW + 2, by - 22, dhW, 24);
-  c.fillText('aar', 56 + anW + dhW + 4, by);
-  const aarW = c.measureText('aar').width;
+  c.fillText('ty', 56 + anW + dhW + 4, by);
+  const aarW = c.measureText('ty').width;
   c.fillStyle = ACCENT;
   c.fillRect(56 + anW + dhW + aarW + 7, by - 6, 7, 7);
   c.font = '500 15px "Geist Mono", monospace';
@@ -192,14 +192,14 @@ function drawBack(ctx) {
   spaced(ctx, -2);
   ctx.fillStyle = '#FAFAF7';
   ctx.textAlign = 'center';
-  ctx.fillText('andhaar', TEX_W / 2, 400);
+  ctx.fillText('vaulty', TEX_W / 2, 400);
   ctx.fillStyle = ACCENT;
-  const w = ctx.measureText('andhaar').width;
+  const w = ctx.measureText('vaulty').width;
   ctx.fillRect(TEX_W / 2 + w / 2 + 6, 386, 14, 14);
   ctx.font = '500 18px "Geist Mono", monospace';
   spaced(ctx, 3);
   ctx.fillStyle = '#8A8A82';
-  ctx.fillText('KEEPS YOUR AADHAAR IN THE DARK', TEX_W / 2, 460);
+  ctx.fillText('YOUR SECRETS, KEPT IN THE VAULT', TEX_W / 2, 460);
 }
 
 function makeRibbonTexture() {
@@ -216,7 +216,7 @@ function makeRibbonTexture() {
   spaced(x, 1);
   x.fillStyle = 'rgba(255,255,255,0.92)';
   for (let y = 40; y < 1024; y += 210) {
-    x.fillText('andhaar', y, 10);
+    x.fillText('vaulty', y, 10);
     x.fillRect(y + 128, -2, 10, 10);
   }
   x.restore();
@@ -505,7 +505,7 @@ function init() {
     });
   }
 
-  document.addEventListener('andhaar:theme', () => {
+  document.addEventListener('vaulty:theme', () => {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
     floorMat.opacity = dark ? 0.9 : 0.45;
   });
