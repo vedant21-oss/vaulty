@@ -1,4 +1,4 @@
-# Production Dockerfile for Vaulty on Google Cloud Run
+# Production Dockerfile for Andhaar on Google Cloud Run
 FROM nginx:alpine
 
 # Copy custom nginx configuration

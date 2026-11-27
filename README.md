@@ -1,4 +1,4 @@
-# Vaulty – your private data, kept in the vault
+# Andhaar – keeps your Aadhaar in the dark
 
 > **PromptWars × NIAT Pune 2026** (Google for Developers + Hack2Skill)  
 > **Theme:** Cybersecurity & Data Privacy  
@@ -10,7 +10,7 @@
 
 Organizations regularly share student spreadsheets, clinical notes, customer support logs, and resumes containing highly sensitive Personally Identifiable Information (PII). A single misdirected or forwarded email leaks hundreds of Aadhaar IDs, PAN cards, credit cards, and mobile numbers.
 
-**Vaulty** is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
+**Andhaar** is a zero-trust, browser-based data sanitisation platform where users paste text or upload `.csv` / `.txt` files. It automatically detects, classifies, and redacts sensitive PII **100% on the client side**, with cryptographic assurance that user data never touches any server.
 
 ---
 
@@ -30,11 +30,11 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 | **3-Step Sticky Action Bar** | Top-anchored numbered workflow: (1) Add text, (2) Hide by mode, (3) Share safely (Download, Copy, Audit report). | Completed |
 | **Tabbed Right Case File** | Organised into `[Summary]`, `[Set aside]`, `[Columns]` (CSV only), and `[Lock & restore]`. | Completed |
 | **Interactive Margin Notes** | Clicking or focusing on any highlight reveals rule explanations, occurrence counts, and let-through toggles. | Completed |
-| **Manual Selection** | Highlight any custom text to instantly trigger "Black this out too". | Completed |
+| **Manual Selection** | Highlight any custom text to instantly trigger "Hide this too". | Completed |
 | **CSV Engine** | RFC-compliant CSV parser handling quoted cells, embedded commas, and `\r\n`. 1-click "Hide column" masking. | Completed |
 | **Exposure Scoring** | Weighted risk score (Cards/Aadhaar: 30, PAN: 20, Phones: 10, Emails: 8, IPs: 5) with repeat decay and 100 cap. | Completed |
-| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (`tool: "Vaulty"`). | Completed |
-| **Encrypted Key Restoration** | Nickname map encrypted via **AES-256-GCM** with PBKDF2 (250,000 iterations). Restores original values with password. | Completed |
+| **Audit Report Download** | Downloadable JSON report with counts, hidden columns, SHA-256 fingerprint, and decoy log (`tool: "Andhaar"`). | Completed |
+| **Encrypted Key Restoration** | Nickname map encrypted via **AES-256-GCM** with PBKDF2 (250,000 iterations). Restores original values with password (`.andhaar-key`). | Completed |
 
 ---
 
@@ -45,7 +45,7 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 | **Gemini Nano (Chrome Built-in AI)** | Prompt API (`LanguageModel.create()`) extracts complex Indian names and addresses. Chunks long text. | **100% on-device.** No network packets sent. Strict anti-hallucination verification only accepts items present verbatim in text. |
 | **Chrome Language Detector API** | `translation.createDetector()` displays real language name in sheet header. | Runs locally within browser runtime. |
 | **Gemini API (Google AI Studio)** | Generates fresh synthetic test datasets (`gemini-1.5-flash`) located in More disclosure. | Fixed prompt only. **User text is NEVER transmitted.** API key kept in JS memory only. |
-| **Google Fonts** | Fraunces, Hind, IBM Plex Mono, and Kalam. | Archival, high-trust records room feel. |
+| **Google Fonts** | Geist (300–600) and Geist Mono (400–500). | Clean editorial modern typography. |
 | **Google Cloud Run** | Hardened container deployment using Alpine Nginx on port 8080. | Includes strict CSP and security headers. |
 | **Firebase Hosting** | Serverless hosting configuration in `firebase.json`. | Includes matching zero-trust CSP headers. |
 
@@ -53,7 +53,7 @@ Organizations regularly share student spreadsheets, clinical notes, customer sup
 
 ## 4. Security & Content Security Policy
 
-Vaulty enforces a zero-trust Content Security Policy (CSP):
+Andhaar enforces a zero-trust Content Security Policy (CSP):
 ```http
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
 ```
@@ -64,30 +64,35 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 ---
 
-## 5. UI/UX: Landing page + App
+## 5. UI/UX: Landing Page + App
 
-Two pages, one design system (`css/base.css`): paper-white and ink-black with one saffron accent, big type with square full stops, and small uppercase labels. Light and dark themes follow the system setting, and the toggle remembers your choice.
+Two pages sharing a cohesive, premium design system (`css/base.css`): paper off-white (`#F3F2EE`) and ink-black (`#161614`) with saffron accent (`#F2672E`), giant editorial headlines with square periods, and small uppercase monospace labels. Light and dark themes follow system preferences and remember user selections.
 
 **Landing page (`index.html`)**
-- **3D hero (three.js):** a sample ID card hangs on an Vaulty lanyard. A scan line sweeps down and blacks out the Aadhaar, PAN and phone, then a "Safe to share" stamp lands. Drag to turn it; replay and pause buttons included. Falls back to a flat card if WebGL is off, and respects reduced-motion settings.
-- **Scroll-driven "How it works":** a sticky document goes from *added* → *private items marked* → *blacked out* as you scroll the three steps.
-- **Live playground:** runs the real engine on the page, so it updates as you type, with all three hiding styles.
-- Sections: the problem, what it finds (7 kinds), real vs. fake numbers, Google AI, privacy promise, FAQ.
+- **3D Hero (three.js r160):** A 3D sample ID card suspended from a branded orange lanyard ribbons in a V. An animated orange scan line sweeps down, blacking out the Aadhaar, PAN, and phone, followed by a green "SAFE TO SHARE" stamp landing on the card. Includes pendulum swing, mouse tracking, drag-to-turn with inertia, replay/pause controls, soft blob contact shadow, and a graceful flat fallback for non-WebGL/reduced-motion environments.
+- **Scroll-driven "How it works":** Sticky document window on the left with live detection (`detectPII()`) that progresses from *Added* → *Private items found* (red pill) → *Safe to share* (blacked-out bars + stamp) as each numbered step reaches center screen.
+- **Problem Statement:** Large paragraph where words shift from muted grey to ink black upon scrolling, with animated orange highlighter sweeps on private data types.
+- **What It Finds (7 Kinds):** Indian PII breakdown grid with live redacted code tokens, Verhoeff and Luhn verification explanations, and a Gemini Nano badge.
+- **Real or Fake:** Comparison showcase contrasting genuine PII candidates against decoy values (e.g. invalid Verhoeff checksums, order numbers, invalid PAN 4th characters).
+- **Live In-Browser Playground:** Interactive text editor and real-time safe copy display powered by `js/engine.js`.
+- **Google AI & Privacy Band:** Showcase of on-device Gemini Nano, Language Detector, optional Gemini API, and a giant "0 bytes leave this tab" privacy promise.
+- **Accessible FAQ & Final CTA:** Animated `<details>` accordions with rotating `+` glyphs and responsive navigation.
 
 **App (`app.html`)**
-- Top bar with file name and a live "0 bytes sent" badge.
-- Numbered step bar: **01 Add** (samples, open file, drag and drop anywhere) → **02 Hide by** (Black out / Hint / Nicknames with a live preview) → **03 Share** (Copy, Report, Download).
-- "Look for" chips with live counts, plus on-device Gemini Nano for names and addresses.
-- Side-by-side original and safe copy. Swapped values are shown as ink tokens in the safe copy.
-- Inspector tabs: Summary (risk score, breakdown, SHA-256 fingerprint, Gemini test data), Set aside, Columns (CSV), Lock.
-- Click any mark for a note card (why it was caught, how often it shows up, what it becomes, let it through). Select text to hide it yourself.
-- Keyboard: `1/2/3` styles, `D` download, `E` edit, `Esc` close, `?` help.
+- Full-height 100dvh responsive workspace.
+- 60px top bar with brand mark, file chip, live "On this device · 0 bytes sent" badge, shortcuts trigger, and theme toggle.
+- 3-step action bar: **01 Add** (Placement sheet, Support ticket, Open file) → **02 Hide by** (Black out, Hint, Nicknames with dynamic preview badge) → **03 Share** (Copy, Report, Download safe copy).
+- Filter chips with live entity counts and a dashed Gemini Nano action chip.
+- Side-by-side original and safe copy panes with line metrics, status dots, and footer ink seals (`seal-danger` / `seal-clear`).
+- Safe copy displays replaced items as black tokens (`.safe-token`).
+- Inspector tabs: **Summary** (64px tabular risk score, meter bar, breakdown, SHA-256 fingerprint, synthetic test data generation), **Set aside** (struck-through decoys with plain reasons), **Columns** (CSV masking), and **Lock** (AES-256-GCM `.andhaar-key` export and restore).
+- Floating margin note card for clicked marks, selection tooltip ("Hide this too"), drag-and-drop overlay, and non-blocking toast notifications.
 
-three.js r160 (MIT) is bundled at `js/vendor/three.module.min.js` so the strict `script-src 'self'` policy stays in place.
+---
 
 ## 6. Testing & Quality Assurance
 
-Vaulty includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
+Andhaar includes 33 comprehensive unit tests executing via Node.js built-in test runner (`node:test`):
 
 ```bash
 npm test
@@ -109,7 +114,7 @@ npm start
 
 ### Deploy to Google Cloud Run
 ```bash
-gcloud run deploy vaulty \
+gcloud run deploy andhaar \
   --source . \
   --region asia-south1 \
   --allow-unauthenticated
@@ -124,7 +129,7 @@ firebase deploy --only hosting
 
 ## 8. Built With
 
-- **Google:** Gemini Nano (Chrome built-in AI), Chrome Language Detector, Gemini API (Google AI Studio), Google Cloud Run, Firebase Hosting, Google Fonts.
-- **Libraries:** three.js r160 (MIT) for the 3D hero.
-- **AI assistance:** the landing page and app UI redesign were made with help from Claude (Anthropic).
+- **Google:** Gemini Nano (Chrome built-in AI), Chrome Language Detector, Gemini API (Google AI Studio), Google Cloud Run, Firebase Hosting, Google Fonts (Geist, Geist Mono).
+- **Libraries:** three.js r160 (MIT, bundled locally).
+
 

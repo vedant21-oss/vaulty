@@ -1,5 +1,5 @@
 {
-  "name": "vaulty",
+  "name": "andhaar",
   "version": "1.0.0",
   "description": "Browser-based client-side PII sanitisation and data redaction tool with zero cloud leakage.",
   "type": "module",
@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node --test tests/engine.test.js",
     "start": "python3 -m http.server 8080",
-    "deploy:run": "gcloud run deploy vaulty --source . --region asia-south1 --allow-unauthenticated",
+    "deploy:run": "gcloud run deploy andhaar --source . --region asia-south1 --allow-unauthenticated",
     "deploy:firebase": "firebase deploy --only hosting"
   },
   "keywords": [

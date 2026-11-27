@@ -2,7 +2,7 @@
  * @file landing.js
  * @description Landing page behaviour: nav, scroll reveals, the scroll-driven
  * "How it works" document, and the live playground. The playground runs the
- * real Vaulty engine in this tab — nothing is sent anywhere.
+ * real Andhaar engine in this tab — nothing is sent anywhere.
  */
 
 'use strict';

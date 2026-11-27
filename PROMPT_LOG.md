@@ -113,3 +113,52 @@ Rename the product from "Andhaar" to "Vaulty".
 - Audit report file `vaulty_audit_report.json` with `tool: "Vaulty"`; `package.json` name and Cloud Run service name are now `vaulty`.
 - Earlier entries in this log keep the old name, since they describe what happened at the time.
 
+---
+
+## Prompt 5: Editorial 3D Redesign to "Andhaar" (Milemark Template Aesthetic)
+
+### User Request Summary
+Redesign the hackathon project "Andhaar" in this repository:
+1. Premium editorial landing page at `index.html` with a 3D interactive hero object based on the Milemark 3D freight/logistics template reference (paper off-white `#F3F2EE`, huge black type with small orange square full stops, tiny uppercase monospace labels with pulsing orange status lights, black buttons with ↗ hover nudges, scroll-driven typography and document animations).
+2. Move tool to `app.html` and restyle it to match the landing page design system (`css/base.css` and `css/app.css`).
+3. Strict adherence to Hard Rules:
+   - Plain HTML, CSS and JS ES modules with zero frameworks or build steps.
+   - Strict Content Security Policy (`script-src 'self'`). Zero inline scripts, `style=""`, or `onclick`.
+   - `js/engine.js`, `js/samples.js`, `js/gemini.js`, and `tests/` left completely untouched. `npm test` passes all 33 tests.
+   - three.js r160 bundled locally in `js/vendor/three.module.min.js`.
+   - Google Fonts: Geist (300–600) and Geist Mono (400–500).
+   - Fully accessible, responsive at 390px (zero horizontal scroll) and 1440px, light & dark theme support, and prefers-reduced-motion.
+   - All 82 element IDs and class bindings in `app.html` strictly preserved.
+   - Replace all `alert()` with accessible toasts.
+
+### Actions & Changes
+1. **Design System (`css/base.css`):**
+   - Implemented exact palette: light bg `#F3F2EE`, elevated `#FBFBF9`, sunken `#EAE9E3`, ink `#161614`, accent `#F2672E`, safe `#1E8E5A`, danger `#D9412F`; dark bg `#0E0E0D`, elevated `#171715`, ink `#EDECE6`, line `#262623`, accent `#FF7A3D`.
+   - Distinct highlight tints for all 7 Indian PII types (email, phone, card, aadhaar, pan, ip, nano names/addresses, manual).
+   - Editorial typography: Geist & Geist Mono, square orange full stops (`.sq`) wrapped in `.nw` to prevent lonely wrap, uppercase labels (`.eyebrow`) with pulsing saffron dots (`.eyebrow-dot`).
+   - Andhaar logo: 26px rounded square mark with orange and light accent bars, plus `an<span class="brand-redact">dh</span>aar<span class="brand-dot"></span>` where letters "dh" are swiped under an ink bar.
+   - Dark pill toasts with green/red status dots replacing all alert dialogs.
+   - `js/theme.js` no-flash theme script with system auto-detection and persistence.
+
+2. **Landing Page (`index.html`, `css/landing.css`, `js/landing.js`, `js/hero3d.js`):**
+   - **Hero:** Giant typographic composition "Hide it." top-left and "Share it." bottom-right (15vw) with orange square full stops. Monospace status badges "● Privacy, on your device", "01 / Hide", "WHAT IT CATCHES" side card with "+", spinning asterisk (✲), drag-to-turn controls with replay/pause, and scroll prompt.
+   - **3D Suspended ID Card (`js/hero3d.js`):** Built with locally bundled three.js r160. Suspended 3.4 × 2.16 card with lanyard slot hanging on an orange branded lanyard ribbons in a V. 2D canvas texture with photo silhouette, sample Indian PII (Priya Patel, Aadhaar, PAN, phone), 10-second scan-line redaction cycle with Verhoeff/Luhn validation, black redaction bar growth, and green "SAFE TO SHARE" stamp. Pendulum swing, mouse parallax, drag-to-turn with inertia, and soft contact shadow.
+   - **Problem Section:** Dynamic scroll-linked text where words transition from muted grey to ink black, with animated orange highlighter sweeps on Aadhaar, PAN, and phone keywords.
+   - **Scroll-Driven "How it works":** Sticky document window on the left with live detection (`detectPII()`) that transitions through Step 1 (Added), Step 2 (Private items found with red pill), and Step 3 (Safe to share with black bars and stamp).
+   - **What It Catches & Real vs. Fake:** 7-cell bordered grid with masked code tokens and verification rules; comparative decoy section contrasting genuine items vs. decoy numbers with human-friendly reasons.
+   - **In-Browser Playground:** Interactive input with instant live preview in Black out, Hint, or Nicknames mode.
+   - **Google AI, Privacy Promise ("0 bytes leave this tab"), and FAQ Accordion.**
+
+3. **Restyled App Workspace (`app.html`, `css/app.css`, `js/app.js`):**
+   - 100dvh full-height workspace with top bar (logo, file chip, "0 bytes sent" privacy pill, shortcuts trigger, theme toggle).
+   - Sticky 3-step action bar (`01 Add`, `02 Hide by` with live preview token, `03 Share`).
+   - PII filter chips with live counts and Gemini Nano trigger.
+   - Two panes: "Your original" and "Safe copy" with line metrics and footer seals (`seal-danger` / `seal-clear`). Replaced values rendered as black tokens (`.safe-token`).
+   - Inspector with 4 tabs: Summary (64px tabular risk score, meter bar, SHA-256 fingerprint, synthetic test data generator), Set aside (struck-through decoys), Columns (CSV masking), and Lock (`.andhaar-key` AES-256-GCM encryption/restoration).
+   - Floating note card on highlight click, selection tooltip for manual redaction, blurred drop overlay, and non-blocking toast notifications.
+
+4. **Quality & Verification:**
+   - Ran `npm test`: all 33 unit tests pass.
+   - Automated headless Chrome checks at 1440px and 390px in both light and dark themes confirmed zero console errors and zero horizontal overflow.
+   - Updated `Dockerfile` to deploy both `index.html` and `app.html`.
+

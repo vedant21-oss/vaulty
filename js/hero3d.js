@@ -135,12 +135,12 @@ function drawFace(s) {
   spaced(c, -1);
   c.fillStyle = '#FAFAF7';
   const by = TEX_H - 22;
-  c.fillText('va', 56, by);
-  const anW = c.measureText('va').width;
-  const dhW = c.measureText('ul').width;
+  c.fillText('an', 56, by);
+  const anW = c.measureText('an').width;
+  const dhW = c.measureText('dh').width;
   c.fillRect(56 + anW + 2, by - 22, dhW, 24);
-  c.fillText('ty', 56 + anW + dhW + 4, by);
-  const aarW = c.measureText('ty').width;
+  c.fillText('aar', 56 + anW + dhW + 4, by);
+  const aarW = c.measureText('aar').width;
   c.fillStyle = ACCENT;
   c.fillRect(56 + anW + dhW + aarW + 7, by - 6, 7, 7);
   c.font = '500 15px "Geist Mono", monospace';
@@ -186,20 +186,54 @@ function drawFace(s) {
 function drawBack(ctx) {
   ctx.fillStyle = INK;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
-  ctx.fillStyle = '#2A2A27';
+  ctx.fillStyle = '#222220';
   ctx.fillRect(0, 150, TEX_W, 90);
+
+  // Logo mark + wordmark
+  ctx.save();
   ctx.font = '600 64px Geist, sans-serif';
   spaced(ctx, -2);
-  ctx.fillStyle = '#FAFAF7';
-  ctx.textAlign = 'center';
-  ctx.fillText('vaulty', TEX_W / 2, 400);
+  const anW = ctx.measureText('an').width;
+  const dhW = ctx.measureText('dh').width;
+  const aarW = ctx.measureText('aar').width;
+  const markSize = 58;
+  const gap = 20;
+  const textTotalW = anW + dhW + aarW + 28;
+  const totalLogoW = markSize + gap + textTotalW;
+  const startX = (TEX_W - totalLogoW) / 2;
+  const cy = 400;
+
+  // Dark rounded square mark with orange bar inside
+  roundRect(ctx, startX, cy - 54, markSize, markSize, 14);
+  ctx.fillStyle = '#222220';
+  ctx.fill();
   ctx.fillStyle = ACCENT;
-  const w = ctx.measureText('vaulty').width;
-  ctx.fillRect(TEX_W / 2 + w / 2 + 6, 386, 14, 14);
+  roundRect(ctx, startX + 10, cy - 36, markSize - 20, 8, 2);
+  ctx.fill();
+  ctx.fillStyle = '#FAFAF7';
+  ctx.globalAlpha = 0.5;
+  roundRect(ctx, startX + 10, cy - 20, markSize - 30, 8, 2);
+  ctx.fill();
+  ctx.globalAlpha = 1.0;
+
+  // Wordmark: an + redacted 'dh' + aar + square dot
+  const wordX = startX + markSize + gap;
+  ctx.fillStyle = '#FAFAF7';
+  ctx.textAlign = 'left';
+  ctx.fillText('an', wordX, cy);
+  ctx.fillStyle = '#2A2A27';
+  ctx.fillRect(wordX + anW + 3, cy - 48, dhW, 52);
+  ctx.fillStyle = '#FAFAF7';
+  ctx.fillText('aar', wordX + anW + dhW + 6, cy);
+  ctx.fillStyle = ACCENT;
+  ctx.fillRect(wordX + anW + dhW + aarW + 14, cy - 14, 14, 14);
+
   ctx.font = '500 18px "Geist Mono", monospace';
   spaced(ctx, 3);
   ctx.fillStyle = '#8A8A82';
-  ctx.fillText('YOUR SECRETS, KEPT IN THE VAULT', TEX_W / 2, 460);
+  ctx.textAlign = 'center';
+  ctx.fillText('PRIVACY, ON YOUR DEVICE', TEX_W / 2, 470);
+  ctx.restore();
 }
 
 function makeRibbonTexture() {
@@ -212,12 +246,12 @@ function makeRibbonTexture() {
   x.save();
   x.translate(32, 0);
   x.rotate(Math.PI / 2);
-  x.font = '600 30px Geist, sans-serif';
+  x.font = '600 28px Geist, sans-serif';
   spaced(x, 1);
   x.fillStyle = 'rgba(255,255,255,0.92)';
-  for (let y = 40; y < 1024; y += 210) {
-    x.fillText('vaulty', y, 10);
-    x.fillRect(y + 128, -2, 10, 10);
+  for (let y = 30; y < 1024; y += 220) {
+    x.fillText('andhaar', y, 10);
+    x.fillRect(y + 130, -1, 9, 9);
   }
   x.restore();
   const t = new THREE.CanvasTexture(c);
@@ -505,7 +539,7 @@ function init() {
     });
   }
 
-  document.addEventListener('vaulty:theme', () => {
+  document.addEventListener('andhaar:theme', () => {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
     floorMat.opacity = dark ? 0.9 : 0.45;
   });

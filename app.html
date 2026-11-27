@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
-  <meta name="description" content="Vaulty app: paste text or drop a file, see every private detail, and download a safe copy. Runs fully in your browser.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none';">
+  <meta name="description" content="Andhaar app: paste text or drop a file, see every private detail, and download a safe copy. Runs fully in your browser.">
   <meta name="theme-color" content="#F3F2EE">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <title>Vaulty · App</title>
+  <title>Andhaar · App</title>
 
   <script src="js/theme.js"></script>
 
@@ -25,9 +25,9 @@
     <!-- ============ TOP BAR ============ -->
     <header class="topbar" role="banner">
       <div class="topbar-left">
-        <a href="index.html" class="brand" aria-label="Vaulty home">
+        <a href="index.html" class="brand" aria-label="Andhaar home">
           <span class="brand-mark" aria-hidden="true"></span>
-          <span class="brand-word" aria-hidden="true">va<span class="brand-redact">ul</span>ty<span class="brand-dot"></span></span>
+          <span class="brand-word" aria-hidden="true">an<span class="brand-redact">dh</span>aar<span class="brand-dot"></span></span>
         </a>
         <span class="topbar-sep" aria-hidden="true"></span>
         <span class="file-chip" id="topbar-file">
@@ -207,7 +207,7 @@
 
       <!-- Inspector -->
       <aside class="inspector" aria-label="Summary and tools">
-        <div class="tabs" role="tablist" aria-label="Inspector">
+        <div class="tabs panel-tabs" role="tablist" aria-label="Inspector">
           <button id="tab-btn-summary" class="panel-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-pane-summary">Summary</button>
           <button id="tab-btn-setaside" class="panel-tab-btn" role="tab" aria-selected="false" aria-controls="tab-pane-setaside">
             Set aside <span id="tab-count-setaside" class="tab-badge">0</span>
@@ -276,15 +276,15 @@
             <p class="ins-note">Save which nickname means what (like <code>USER_01</code> = the real email) in a file locked with your password. Uses AES-256.</p>
             <label for="lock-password" class="field-label">Password</label>
             <input id="lock-password" class="field" type="password" placeholder="Pick a strong password" autocomplete="new-password">
-            <button id="btn-lock-key" class="btn btn-dark btn-sm btn-block" type="button">Download .vaulty-key</button>
+            <button id="btn-lock-key" class="btn btn-dark btn-sm btn-block" type="button">Download .andhaar-key</button>
             <div id="lock-status" class="status" aria-live="polite"></div>
           </div>
 
           <div class="lock-box">
             <span class="ins-label">Bring real values back</span>
-            <p class="ins-note">Load your <code>.vaulty-key</code> file and type the password. The safe copy turns back into the original.</p>
+            <p class="ins-note">Load your <code>.andhaar-key</code> file and type the password. The safe copy turns back into the original.</p>
             <label for="restore-key-file" class="field-label">Key file</label>
-            <input id="restore-key-file" class="field field-file" type="file" accept=".vaulty-key,.vaulty-key,.newname-key,.json">
+            <input id="restore-key-file" class="field field-file" type="file" accept=".andhaar-key,.vaulty-key,.newname-key,.json">
             <label for="restore-password" class="field-label">Password</label>
             <input id="restore-password" class="field" type="password" placeholder="Password" autocomplete="current-password">
             <button id="btn-restore-action" class="btn btn-ghost btn-sm btn-block" type="button">Restore originals</button>

@@ -1,8 +1,8 @@
 /* ==========================================================================
-   Vaulty — app workspace
+   Andhaar — app workspace
    ========================================================================== */
 
-.app { min-height: 100vh; }
+.app { min-height: 100vh; overflow-x: hidden; }
 .shell {
   display: grid;
   grid-template-rows: auto auto auto auto 1fr;
@@ -73,13 +73,9 @@
 /* ---------- chips ---------- */
 .chips {
   display: flex; align-items: center; gap: 14px; padding: 10px 20px;
-  border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: thin;
 }
-.chips::-webkit-scrollbar { display: none; }
-.chips-label {
-  flex: none; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
-}
-.chips-group { display: flex; gap: 6px; flex-wrap: nowrap; }
+.chips-group { display: flex; gap: 6px; flex-wrap: nowrap; padding-right: 16px; }
 .chip-btn {
   display: inline-flex; align-items: center; gap: 8px; flex: none;
   height: 30px; padding: 0 6px 0 10px; border-radius: 99px;
@@ -183,12 +179,12 @@
   display: flex; align-items: center; justify-content: flex-end;
   padding: 10px 14px; border-top: 1px solid var(--line);
 }
-.seal {
+.seal, .ink-seal {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 5px 10px; border-radius: 6px;
 }
-.seal::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.seal::before, .ink-seal::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .seal-danger, .ink-seal-danger { background: var(--danger-soft); color: var(--danger); }
 .seal-clear, .ink-seal-clear { background: var(--safe-soft); color: var(--safe); }
 
@@ -419,6 +415,12 @@ kbd {
   .stepbar { grid-template-columns: 1fr 1fr; }
   .step-share { grid-column: 1 / -1; justify-content: flex-start; border-top: 1px solid var(--line); }
   .step:nth-child(2) { border-right: 0; }
+}
+@media (max-width: 900px) {
+  .stepbar { grid-template-columns: 1fr; }
+  .step { border-right: 0; border-bottom: 1px solid var(--line); }
+  .step:nth-child(2) { border-bottom: 1px solid var(--line); }
+  .step-share { border-top: 0; border-bottom: 0; }
 }
 @media (max-width: 1099px) {
   .workspace { grid-template-columns: 1fr 1fr; }
